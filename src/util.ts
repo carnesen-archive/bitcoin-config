@@ -22,22 +22,17 @@ export function findOption(maybeOptionName: string, sectionName?: SectionName) {
     ([optionName]) => optionName === maybeOptionName,
   );
   if (!found) {
-    return {
-      optionName: maybeOptionName,
-      option: UNKNOWN_OPTION,
-    };
+    throw new Error(`Unknown option "${maybeOptionName}"`);
   }
-  const optionName = maybeOptionName as keyof typeof BITCOIN_CONFIG_OPTIONS;
   const [, option] = found;
   if (
     sectionName &&
     option.notAllowedIn &&
     (option.notAllowedIn as NotAllowedIn)[sectionName]
   ) {
-    throw new Error(`Option "${optionName}" is not allowed in section "${sectionName}"`);
+    throw new Error(
+      `Option "${maybeOptionName}" is not allowed in section "${sectionName}"`,
+    );
   }
-  return {
-    optionName,
-    option,
-  };
+  return option;
 }

@@ -23,15 +23,6 @@ export const createOption = <T extends TypeName, U extends NotAllowedIn>(
   option: Option<T, U>,
 ) => option;
 
-export const UNKNOWN_OPTION = createOption({
-  longName: 'unknown option',
-  typeName: 'string',
-  description: [
-    'This is an option name that this program does not know about.',
-    'It will be treated as a single-valued string.',
-  ],
-});
-
 export const BITCOIN_CONFIG_OPTIONS = {
   acceptnonstdtxn: createOption({
     longName: 'accept non-standard transactions',

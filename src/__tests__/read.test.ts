@@ -54,13 +54,10 @@ describe('readConfigFiles', () => {
     expect(config).toEqual({ includeconf: [includedFilePath], rpcuser: 'satoshi' });
   });
 
-  it('attaches an unknown option as a string but does not include it in the static type', () => {
-    const config = readConfigFiles({ conf: tempWrite.sync('foo=bar') });
-    expect((config as any).foo).toEqual('bar');
-    // In the above line ^^, we have to use a type assertion "as any"
-    // because the static type of "config" doesn't know about "foo".
-    // The following would be a type error:
-    //   expect(config.foo).toBe('bar');
+  it('throws "unknown option" if the config file contains unknown options', () => {
+    expect(() => {
+      readConfigFiles({ conf: tempWrite.sync('foo=bar') });
+    }).toThrow('Unknown option "foo"');
   });
 
   it('ignores spaces around keys', () => {

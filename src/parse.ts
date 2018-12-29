@@ -42,25 +42,27 @@ function parseLine(line: string, sectionName?: SectionName): SectionedBitcoinCon
       const maybeDotNotationSectionName = lhs.slice(0, indexOfDot);
       const dotNotationSectionName = castToSectionName(maybeDotNotationSectionName);
       const maybeOptionName = lhs.slice(indexOfDot + 1);
-      const { optionName, option } = findOption(maybeOptionName, dotNotationSectionName);
+      const option = findOption(maybeOptionName, dotNotationSectionName);
       return {
         sections: {
-          [dotNotationSectionName]: { [optionName]: castToValue(option.typeName, rhs) },
+          [dotNotationSectionName]: {
+            [maybeOptionName]: castToValue(option.typeName, rhs),
+          },
         },
       };
     }
     // This line does not use dot notation
     const maybeOptionName = lhs;
-    const { optionName, option } = findOption(maybeOptionName);
-    return { [optionName]: castToValue(option.typeName, rhs) };
+    const option = findOption(maybeOptionName);
+    return { [maybeOptionName]: castToValue(option.typeName, rhs) };
   }
   if (lhs.indexOf('.') > -1) {
     throw new Error('Dot notation is only allowed in top section');
   }
   const maybeOptionName = lhs;
-  const { optionName, option } = findOption(maybeOptionName, sectionName);
+  const option = findOption(maybeOptionName, sectionName);
   return {
-    sections: { [sectionName]: { [optionName]: castToValue(option.typeName, rhs) } },
+    sections: { [sectionName]: { [maybeOptionName]: castToValue(option.typeName, rhs) } },
   };
 }
 
