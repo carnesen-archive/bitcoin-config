@@ -19,9 +19,8 @@ export type Option<T extends TypeName, U extends NotAllowedIn> = {
   onlyAppliesToMain?: boolean;
 };
 
-export const createOption = <T extends TypeName, U extends NotAllowedIn>(
-  option: Option<T, U>,
-) => option;
+const createOption = <T extends TypeName, U extends NotAllowedIn>(option: Option<T, U>) =>
+  option;
 
 export const BITCOIN_CONFIG_OPTIONS = {
   acceptnonstdtxn: createOption({

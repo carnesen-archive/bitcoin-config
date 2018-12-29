@@ -1,6 +1,6 @@
 import { isAbsolute, join } from 'path';
 import { getDefaultDatadir } from './default';
-import { BITCOIN_CONFIG_OPTIONS, UNKNOWN_OPTION, NotAllowedIn } from './options';
+import { BITCOIN_CONFIG_OPTIONS, NotAllowedIn } from './options';
 import { SectionName } from './names';
 
 export function toAbsolute(conf: string, datadir?: string) {
