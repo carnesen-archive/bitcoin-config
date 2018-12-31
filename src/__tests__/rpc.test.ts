@@ -1,12 +1,10 @@
-import { isAbsolute, dirname, basename, join } from 'path';
+import { dirname, join } from 'path';
 import tempWrite = require('temp-write');
 import * as tempy from 'tempy';
-import { readConfigFiles } from '../read';
-import { BitcoinConfig, DefaultConfig } from '../config';
 import { getRpcHref } from '../rpc';
 import { URL } from 'url';
 import { BITCOIN_CONFIG_OPTIONS } from '../options';
-import { mkdir, mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 
 // jest.mock('../read-config');
 

@@ -3,6 +3,7 @@ import {
   writeConfigFiles,
   BitcoinConfig,
   SectionedBitcoinConfig,
+  getRpcHref,
 } from '..';
 import * as tempy from 'tempy';
 import { getDefaultConfig } from '../default';
@@ -17,6 +18,11 @@ describe('index', () => {
   it('exports a function named `writeConfigFiles`', () => {
     expect(typeof writeConfigFiles).toBe('function');
     expect(writeConfigFiles.name).toBe('writeConfigFiles');
+  });
+
+  it('exports a function named `getRpcHref`', () => {
+    expect(typeof getRpcHref).toBe('function');
+    expect(getRpcHref.name).toBe('getRpcHref');
   });
 
   it('exports types `BitcoinConfig` and `SectionedBitcoinConfig`', () => {

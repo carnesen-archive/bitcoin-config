@@ -1,7 +1,6 @@
 import { URL } from 'url';
 import { readFileSync } from 'fs';
 
-import { readConfigFiles } from './read';
 import { toAbsolute, getActiveSectionName } from './util';
 import { BitcoinConfig } from './config';
 import { getDefaultConfig } from './default';

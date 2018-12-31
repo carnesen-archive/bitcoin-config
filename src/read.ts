@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'fs';
-import { BITCOIN_CONF_FILENAME, getDefaultConfig } from './default';
+import { BITCOIN_CONF_FILENAME } from './default';
 import { parseConfigFileContents } from './parse';
 import { toAbsolute } from './util';
 import { SectionedBitcoinConfig, BitcoinConfig } from './config';
