@@ -921,13 +921,12 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'rpc bind',
     typeName: 'string[]',
     description: [
-      'Bind to given address to listen for JSON-RPC connections.',
-      'This option is ignored unless -rpcallowip is also passed.',
-      'Port is optional and overrides -rpcport.',
-      'By default only local connections are allowed.',
+      'Bind to given <addr>[:port] to listen for JSON-RPC connections.',
+      'This option is ignored unless -rpcallowip is also passed. [:port]',
+      'is optional and overrides -rpcport.',
     ],
     onlyAppliesToMain: true,
-    defaultValue: undefined,
+    defaultValue: ['127.0.0.1', '::1'],
   }),
 
   rpcclienttimeout: createOption({
@@ -1001,7 +1000,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'rpc user',
     typeName: 'string',
     description: ['Specify username for RPC http basic authentication'],
-    defaultValue: undefined,
+    defaultValue: '',
   }),
 
   rpcwait: createOption({

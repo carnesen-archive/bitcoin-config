@@ -1,12 +1,8 @@
 import { readFileSync, existsSync } from 'fs';
-import { BITCOIN_CONF_FILENAME, getDefaults } from './default';
+import { BITCOIN_CONF_FILENAME, getDefaultConfig } from './default';
 import { parseConfigFileContents } from './parse';
 import { toAbsolute } from './util';
-import {
-  SectionedBitcoinConfig,
-  BitcoinConfigWithDefaults,
-  BitcoinConfig,
-} from './config';
+import { SectionedBitcoinConfig, BitcoinConfig } from './config';
 import { dirname } from 'path';
 import { mergeUpActiveSectionConfig, mergeSectionedBitcoinConfigs } from './merge';
 
@@ -15,20 +11,13 @@ function readOneConfigFile(filePath: string) {
   return parseConfigFileContents(fileContents);
 }
 
-type ReadConfigFilesOptions<T> = Partial<{
-  conf: string;
-  datadir: string;
-  withDefaults: T;
-}>;
-
-type ReadConfigFilesReturnValue<T> = T extends true
-  ? BitcoinConfigWithDefaults
-  : BitcoinConfig;
-
-export function readConfigFiles<T extends boolean>(
-  options: ReadConfigFilesOptions<T> = {},
-): ReadConfigFilesReturnValue<T> {
-  const { conf, datadir, withDefaults } = options;
+export function readConfigFiles(
+  location: Partial<{
+    conf: string;
+    datadir: string;
+  }> = {},
+): BitcoinConfig {
+  const { conf, datadir } = location;
   let sectionedBitcoinConfig: SectionedBitcoinConfig = {};
   const confPath = toAbsolute(conf || BITCOIN_CONF_FILENAME, { datadir });
   try {
@@ -49,12 +38,6 @@ export function readConfigFiles<T extends boolean>(
       );
     }
   }
-  if (withDefaults) {
-    sectionedBitcoinConfig = mergeSectionedBitcoinConfigs(
-      sectionedBitcoinConfig,
-      getDefaults(),
-    );
-  }
   const bitcoinConfig = mergeUpActiveSectionConfig(sectionedBitcoinConfig);
   if (bitcoinConfig.includeconf !== includeconf) {
     throw new Error(
@@ -64,5 +47,5 @@ export function readConfigFiles<T extends boolean>(
   if (datadir) {
     bitcoinConfig.datadir = datadir;
   }
-  return bitcoinConfig as ReadConfigFilesReturnValue<T>;
+  return bitcoinConfig;
 }

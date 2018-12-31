@@ -1,58 +1,94 @@
-// import { URL } from 'url';
-// import { isAbsolute, join } from 'path';
-// import { readConfigFiles } from './read';
-// import { getActiveSectionName, toAbsolute } from './util';
-// import { readFileSync } from 'fs';
+import { URL } from 'url';
+import { readFileSync } from 'fs';
 
-// type Options = {
-//   conf?: string;
-//   datadir?: string;
-// };
+import { readConfigFiles } from './read';
+import { toAbsolute, getActiveSectionName } from './util';
+import { BitcoinConfig } from './config';
+import { getDefaultConfig } from './default';
 
-// export function readRpcHref(options: Options = {}) {
-//   const bitcoinConfig = readConfigFiles({ ...options });
-//   const bitcoinConfigWithDefaults = readConfigFiles({ ...options, withDefaults: true });
+function parseHost(str: string) {
+  let hostname: string = str;
+  let port: number | undefined;
+  const indexOfLastColon = str.lastIndexOf(':');
+  // if a : is found, and it either follows a [...], or no other : is in the string, treat it as port separator
+  const hasColon = indexOfLastColon > -1;
+  // if there is a colon and str[0]=='[', colon is not 0, so charAt(indexOfLastColon - 1) is safe
+  const isBracketed =
+    hasColon && str.startsWith('[') && str.charAt(indexOfLastColon - 1) === ']';
+  const hasMultipleColons = hasColon && str.lastIndexOf(':', indexOfLastColon - 1) !== -1;
+  if (hasColon && (indexOfLastColon === 0 || isBracketed || !hasMultipleColons)) {
+    const portStr = str.slice(indexOfLastColon + 1);
+    port = Number(portStr);
+    if (isNaN(port) || port !== parseInt(portStr, 10)) {
+      throw new Error(`Invalid port in host string "${str}"`);
+    }
+    hostname = str.slice(0, indexOfLastColon);
+  }
+  if (hostname.startsWith('[') && hostname.endsWith(']')) {
+    hostname = hostname.slice(1, -1);
+  }
+  return {
+    hostname,
+    port,
+  };
+}
 
-//   const url = new URL(`http://${bitcoinConfigWithDefaults.rpcconnect}`);
-//   url.port = bitcoinConfigWithDefaults.rpcport.toString();
-//   if (!bitcoinConfig.rpcconnect && bitcoinConfig.rpcbind && bitcoinConfig.rpcallowip) {
-//     // rpcconnect has not been set explicitly
-//     url.host = bitcoinConfig.rpcbind[0];
-//   }
+type GetRpcHrefConfig = Pick<
+  BitcoinConfig,
+  | 'datadir'
+  | 'regtest'
+  | 'testnet'
+  | 'rpccookiefile'
+  | 'rpcconnect'
+  | 'rpcpassword'
+  | 'rpcuser'
+  | 'rpcport'
+>;
 
-//   let username: string;
-//   let password: string;
-//   if (bitcoinConfig.rpcpassword) {
-//     // cookie-based auth is disabled
-//     if (!bitcoinConfig.rpcuser) {
-//       throw new Error('Configuration file had rpcpassword but not rpcuser');
-//     }
-//     username = bitcoinConfig.rpcuser;
-//     password = bitcoinConfig.rpcpassword;
-//   } else {
-//     // cookie-based auth is enabled
-//     const { rpccookiefile, regtest, testnet } = bitcoinConfigWithDefaults;
-//     const cookieFilePath = toAbsolute(rpccookiefile, {
-//       datadir: options.datadir,
-//       regtest,
-//       testnet,
-//     });
-//     let cookieFileContents: string;
-//     try {
-//       cookieFileContents = readFileSync(cookieFilePath, { encoding: 'utf8' });
-//     } catch (ex) {
-//       if (ex.code === 'ENOENT') {
-//         throw new Error(`Expected to find "${cookieFilePath}". Is bitcoind running?`);
-//       }
-//       throw ex;
-//     }
-//     [username, password] = cookieFileContents.split(':');
-//     if (!username || !password) {
-//       throw new Error('Expected cookie file to contain "username:password"');
-//     }
-//   }
+export function getRpcHref(config: GetRpcHrefConfig = {}) {
+  const sectionName = getActiveSectionName(config);
+  const defaultConfig = getDefaultConfig(sectionName);
 
-//   let resolvedPort: string;
-//   url.port = resolvedPort;
-//   return url.href;
-// }
+  // Determine hostname and port
+  const parsedDefaultRpcconnect = parseHost(defaultConfig.rpcconnect);
+  let { hostname } = parsedDefaultRpcconnect;
+  let port = defaultConfig.rpcport;
+  if (config.rpcconnect) {
+    const parsedRpcconnect = parseHost(config.rpcconnect);
+    hostname = parsedRpcconnect.hostname || hostname;
+    port = parsedRpcconnect.port || port;
+  }
+  port = config.rpcport || port;
+  const isIpv6 = hostname.split(':').length > 2;
+  if (isIpv6) {
+    hostname = `[${hostname}]`;
+  }
+  const url = new URL(`http://${hostname}:${port}`);
+
+  // Determine username and password
+  let username: string;
+  let password: string;
+  if (config.rpcpassword) {
+    // cookie-based auth is disabled
+    username = config.rpcuser || defaultConfig.rpcuser;
+    password = config.rpcpassword;
+  } else {
+    // cookie-based auth is enabled
+    const cookieFilePath = toAbsolute(
+      config.rpccookiefile || defaultConfig.rpccookiefile,
+      {
+        datadir: config.datadir,
+        sectionName,
+      },
+    );
+    const cookieFileContents = readFileSync(cookieFilePath, { encoding: 'utf8' });
+    [username, password] = cookieFileContents.split(':');
+    if (!username || !password) {
+      throw new Error('Expected cookie file to contain "username:password"');
+    }
+  }
+
+  url.username = username;
+  url.password = password;
+  return url.href;
+}

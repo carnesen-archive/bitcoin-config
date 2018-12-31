@@ -6,7 +6,7 @@ type OptionName = keyof Options;
 
 export type BitcoinConfig = { [K in OptionName]?: Value<Options[K]['typeName']> };
 
-export type BitcoinConfigWithDefaults = {
+export type DefaultConfig = {
   [K in OptionName]:
     | Value<Options[K]['typeName']>
     | (Options[K]['defaultValue'] extends undefined ? undefined : never)

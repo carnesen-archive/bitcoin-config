@@ -180,38 +180,6 @@ describe('readConfigFiles', () => {
     expect(config).toEqual({ testnet: true, rpcpassword: '123' });
   });
 
-  it('includes default values if options include withDefaults=true', () => {
-    const config = readConfigFiles({
-      conf: tempWrite.sync(''),
-      withDefaults: true,
-    });
-    expect(config.blocksonly).toBe(false);
-  });
-
-  it('includes proper network-dependent default values where appropriate', () => {
-    expect(
-      readConfigFiles({
-        conf: tempWrite.sync(''),
-        withDefaults: true,
-      }).rpcport,
-    ).toBe(8332);
-    expect(
-      readConfigFiles({
-        conf: tempWrite.sync('testnet=1'),
-        withDefaults: true,
-      }).rpcport,
-    ).toBe(18332);
-  });
-
-  it('values in the config file take precedence over defaults', () => {
-    expect(
-      readConfigFiles({
-        conf: tempWrite.sync('testnet=1 \n [test] \n rpcport=11111'),
-        withDefaults: true,
-      }).rpcport,
-    ).toBe(11111);
-  });
-
   it('throws "Parse error" with the line number and line text if a line is bad', () => {
     expect(() => {
       readConfigFiles({
@@ -290,6 +258,14 @@ describe('readConfigFiles', () => {
         conf: tempWrite.sync('[main] \n vbparams=foo'),
       }),
     ).toThrow('not allowed');
+  });
+
+  it('throws "must not have a leading" if an option name starts with "-"', () => {
+    expect(() =>
+      readConfigFiles({
+        conf: tempWrite.sync('-vbparams=foo'),
+      }),
+    ).toThrow('must not have a leading');
   });
 
   it('throws "must be absolute" if passed datadir is not absolute', () => {

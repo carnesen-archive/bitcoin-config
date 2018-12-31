@@ -4,9 +4,9 @@ import { BITCOIN_CONFIG_OPTIONS, NotAllowedIn } from './options';
 import { SectionName } from './names';
 import { BitcoinConfig } from './config';
 
-export function getActiveSectionName(
-  config: Pick<BitcoinConfig, 'regtest' | 'testnet'>,
-): SectionName {
+type NetworkConfig = Pick<BitcoinConfig, 'regtest' | 'testnet'>;
+
+export function getActiveSectionName(config: NetworkConfig): SectionName {
   const { regtest, testnet } = config;
   if (regtest && testnet) {
     throw new Error('regtest and testnet cannot both be set to true');
@@ -20,12 +20,24 @@ export function getActiveSectionName(
   return 'main';
 }
 
+export function setActiveSectionName(config: NetworkConfig, sectionName: SectionName) {
+  config.regtest = false;
+  config.testnet = false;
+  switch (sectionName) {
+    case 'test':
+      config.testnet = true;
+      break;
+    case 'regtest':
+      config.regtest = true;
+      break;
+  }
+}
+
 export function toAbsolute(
   filePath: string,
-  config: Pick<BitcoinConfig, 'regtest' | 'testnet' | 'datadir'> = {},
+  options: { datadir?: string; sectionName?: SectionName } = {},
 ) {
-  const sectionName = getActiveSectionName(config);
-  const { datadir } = config;
+  const { datadir, sectionName } = options;
   if (isAbsolute(filePath)) {
     return filePath;
   }

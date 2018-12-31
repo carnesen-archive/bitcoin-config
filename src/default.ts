@@ -1,8 +1,10 @@
 import { join } from 'path';
 import { platform, homedir } from 'os';
-import { SectionedBitcoinConfig, Sections, BitcoinConfig } from './config';
+import { SectionedBitcoinConfig, Sections, BitcoinConfig, DefaultConfig } from './config';
 import { BITCOIN_CONFIG_OPTIONS } from './options';
-import { SECTION_NAMES } from './names';
+import { SECTION_NAMES, SectionName } from './names';
+import { setActiveSectionName } from './util';
+import { mergeUpActiveSectionConfig } from './merge';
 
 export const BITCOIN_CONF_FILENAME = 'bitcoin.conf';
 
@@ -19,7 +21,7 @@ export function getDefaultDatadir(p = platform()) {
 
 type OptionName = keyof typeof BITCOIN_CONFIG_OPTIONS;
 
-export function getDefaults(p = platform()): SectionedBitcoinConfig {
+export function getDefaultConfig(sectionName: SectionName, p = platform()) {
   const bitcoinConfig: BitcoinConfig = {};
   const sections: Required<Sections> = {
     main: {},
@@ -37,5 +39,7 @@ export function getDefaults(p = platform()): SectionedBitcoinConfig {
     }
   }
   bitcoinConfig.datadir = getDefaultDatadir(p);
-  return { ...bitcoinConfig, sections };
+  const sectionedBitcoinConfig: SectionedBitcoinConfig = { ...bitcoinConfig, sections };
+  setActiveSectionName(sectionedBitcoinConfig, sectionName);
+  return mergeUpActiveSectionConfig(sectionedBitcoinConfig) as DefaultConfig;
 }
