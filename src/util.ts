@@ -2,18 +2,54 @@ import { isAbsolute, join } from 'path';
 import { getDefaultDatadir } from './default';
 import { BITCOIN_CONFIG_OPTIONS, NotAllowedIn } from './options';
 import { SectionName } from './names';
+import { BitcoinConfig } from './config';
 
-export function toAbsolute(conf: string, datadir?: string) {
-  if (isAbsolute(conf)) {
-    return conf;
+export function getActiveSectionName(
+  config: Pick<BitcoinConfig, 'regtest' | 'testnet'>,
+): SectionName {
+  const { regtest, testnet } = config;
+  if (regtest && testnet) {
+    throw new Error('regtest and testnet cannot both be set to true');
+  }
+  if (regtest) {
+    return 'regtest';
+  }
+  if (testnet) {
+    return 'test';
+  }
+  return 'main';
+}
+
+export function toAbsolute(
+  filePath: string,
+  config: Pick<BitcoinConfig, 'regtest' | 'testnet' | 'datadir'> = {},
+) {
+  const sectionName = getActiveSectionName(config);
+  const { datadir } = config;
+  if (isAbsolute(filePath)) {
+    return filePath;
   }
   if (datadir && !isAbsolute(datadir)) {
     throw new Error('Path "datadir" must be absolute');
   }
-  return join(datadir || getDefaultDatadir(), conf);
+  const paths = [datadir || getDefaultDatadir()];
+  switch (sectionName) {
+    case 'regtest':
+      paths.push('regtest');
+      break;
+    case 'test':
+      paths.push('testnet3');
+  }
+  return join(...paths, filePath);
 }
 
 export function findOption(maybeOptionName: string, sectionName?: SectionName) {
+  if (maybeOptionName.length === 0) {
+    throw new Error('Empty option name');
+  }
+  if (maybeOptionName.startsWith('-')) {
+    throw new Error('Options in a configuration file must not have a leading "-"');
+  }
   const alphanumericOrHyphenRegExp = /[^\w\-]/gi;
   if (maybeOptionName.replace(alphanumericOrHyphenRegExp, '') !== maybeOptionName) {
     throw new Error(`Invalid option name "${maybeOptionName}"`);

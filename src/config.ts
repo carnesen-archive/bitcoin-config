@@ -6,6 +6,12 @@ type OptionName = keyof Options;
 
 export type BitcoinConfig = { [K in OptionName]?: Value<Options[K]['typeName']> };
 
+export type BitcoinConfigWithDefaults = {
+  [K in OptionName]:
+    | Value<Options[K]['typeName']>
+    | (Options[K]['defaultValue'] extends undefined ? undefined : never)
+};
+
 type SectionOptionName<T extends SectionName> = {
   [K in OptionName]: (Options)[K]['notAllowedIn'] extends { [K in T]: true } ? never : K
 }[OptionName];
@@ -16,6 +22,6 @@ type SectionConfig<T extends SectionName> = {
 
 export type Sections = { [K in SectionName]?: SectionConfig<K> };
 
-export interface SectionedBitcoinConfig extends BitcoinConfig {
+export type SectionedBitcoinConfig = BitcoinConfig & {
   sections?: Sections;
-}
+};

@@ -94,12 +94,12 @@ describe('writeConfigFiles', () => {
     expect(fileContents).toMatch(/^blocksonly=0$/m);
   });
 
-  it('writes explicitly undefined values as name=', () => {
+  it('writes explicitly undefined values as comments like "# name=', () => {
     const [{ fileContents }] = writeConfigFiles(
       { rpcuser: undefined },
       { conf: tempy.file() },
     );
-    expect(fileContents).toMatch(/^rpcuser=$/m);
+    expect(fileContents).toMatch(/^#rpcuser=$/m);
   });
 
   it('writes multi-valued string option as multiple name=value pairs', () => {

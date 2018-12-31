@@ -10,7 +10,7 @@ const pkg = require('../package.json');
 
 function serializeOption(optionName: string, optionValue?: Value<TypeName>) {
   if (typeof optionValue === 'undefined') {
-    return `${optionName}=`;
+    return `#${optionName}=`;
   }
   if (Array.isArray(optionValue)) {
     return optionValue
@@ -75,7 +75,7 @@ export function writeConfigFiles(
   options: { conf?: string; datadir?: string } = {},
 ) {
   const { conf, datadir } = options;
-  const filePath = toAbsolute(conf || BITCOIN_CONF_FILENAME, datadir);
+  const filePath = toAbsolute(conf || BITCOIN_CONF_FILENAME, { datadir });
   const fileContents = writeOneConfigFile(bitcoinConfig, filePath);
   const returnValue: [{ filePath: string; fileContents: string }] = [
     { filePath, fileContents },

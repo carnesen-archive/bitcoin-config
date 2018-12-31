@@ -8,19 +8,31 @@ export type Value<T extends TypeName> = T extends 'string'
 
 export type NotAllowedIn = { [K in SectionName]?: true };
 
-type DefaultValue<T extends TypeName> = Value<T> | { [K in SectionName]: Value<T> };
+type DefaultValue<T extends TypeName> =
+  | Value<T>
+  | { [K in SectionName]: Value<T> }
+  | undefined;
 
-export type Option<T extends TypeName, U extends NotAllowedIn> = {
+export type Option<
+  T extends TypeName,
+  U extends DefaultValue<T>,
+  V extends NotAllowedIn
+> = {
   typeName: T;
   description: string[];
   longName: string;
-  defaultValue?: DefaultValue<T>;
-  notAllowedIn?: U;
+  defaultValue: U;
+  notAllowedIn?: V;
   onlyAppliesToMain?: boolean;
 };
 
-const createOption = <T extends TypeName, U extends NotAllowedIn>(option: Option<T, U>) =>
-  option;
+const createOption = <
+  T extends TypeName,
+  U extends DefaultValue<T>,
+  V extends NotAllowedIn
+>(
+  option: Option<T, U, V>,
+) => option;
 
 export const BITCOIN_CONFIG_OPTIONS = {
   acceptnonstdtxn: createOption({
@@ -45,12 +57,14 @@ export const BITCOIN_CONFIG_OPTIONS = {
     typeName: 'string[]',
     description: ['Add a node IP address to attempt to connect to'],
     onlyAppliesToMain: true,
+    defaultValue: undefined,
   }),
 
   addrmantest: createOption({
     longName: 'address manager test',
     typeName: 'boolean',
     description: ['allows you to test address relay locally'],
+    defaultValue: undefined,
   }),
 
   alertnotify: createOption({
@@ -60,6 +74,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Execute a command when an alert or long fork is received.',
       '"%s" in the command string is replaced by the alert message.',
     ],
+    defaultValue: undefined,
   }),
 
   assumevalid: createOption({
@@ -103,6 +118,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Bind to given address and always listen on it. Use [host]:port notation for IPv6.',
     ],
     onlyAppliesToMain: true,
+    defaultValue: undefined,
   }),
 
   blockmaxweight: createOption({
@@ -128,6 +144,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Execute command when the best block changes.',
       '"%s" in the command string is replaced by the new block hash.',
     ],
+    defaultValue: undefined,
   }),
 
   blockreconstructionextratxn: createOption({
@@ -157,6 +174,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'blocks version',
     typeName: 'number',
     description: ['Override block version to test forking scenarios.'],
+    defaultValue: undefined,
   }),
 
   bytespersigop: createOption({
@@ -210,6 +228,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Connect only to the specified node(s). Set to ["0"] to disable automatic connections.',
     ],
     onlyAppliesToMain: true,
+    defaultValue: undefined,
   }),
 
   daemon: createOption({
@@ -240,6 +259,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Specify a non-default location to store blockchain and other data.',
       'Default value is platform-dependent.',
     ],
+    defaultValue: undefined,
   }),
 
   dbbatchsize: createOption({
@@ -303,12 +323,14 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'tor: Enable Tor logging',
       'zmq: Enable ZeroMQ logging',
     ],
+    defaultValue: undefined,
   }),
 
   debugexclude: createOption({
     longName: 'debug exclude',
     typeName: 'string[]',
     description: ['Disable debugging for a feature'],
+    defaultValue: undefined,
   }),
 
   debuglogfile: createOption({
@@ -329,6 +351,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'signrawtransaction',
       'validateaddress',
     ],
+    defaultValue: undefined,
   }),
 
   disablewallet: createOption({
@@ -375,6 +398,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'drop messages test',
     typeName: 'number',
     description: ['Randomly drop 1 of every <n> network messages.'],
+    defaultValue: undefined,
   }),
 
   dustrelayfee: createOption({
@@ -398,6 +422,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'external ip',
     typeName: 'string',
     description: ['Specify your own public IP address.'],
+    defaultValue: undefined,
   }),
 
   fallbackfee: createOption({
@@ -439,6 +464,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Load and merge an additional configuration file.',
       'See https://github.com/bitcoin/bitcoin/pull/10267/files',
     ],
+    defaultValue: undefined,
   }),
 
   incrementalrelayfee: createOption({
@@ -512,6 +538,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'load block',
     typeName: 'string[]',
     description: ['Import blocks from external ".dat" file on startup.'],
+    defaultValue: undefined,
   }),
 
   logips: createOption({
@@ -670,6 +697,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     description: [
       'Use separate SOCKS5 proxy <ip:port> to reach peers via Tor hidden services.',
     ],
+    defaultValue: undefined,
   }),
 
   onlynet: createOption({
@@ -775,12 +803,14 @@ export const BITCOIN_CONFIG_OPTIONS = {
       "Integer representing the script verification flags to enable all OR'ed together.",
       'Flags can be found in interpreter.h.',
     ],
+    defaultValue: undefined,
   }),
 
   proxy: createOption({
     longName: 'proxy',
     typeName: 'string',
     description: ['Connect through <ip:port> SOCKS5 proxy.'],
+    defaultValue: undefined,
   }),
 
   proxyrandomize: createOption({
@@ -872,6 +902,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'a network/netmask (e.g. 1.2.3.4/255.255.255.0)',
       'a network/CIDR (e.g. 1.2.3.4/24)',
     ],
+    defaultValue: undefined,
   }),
 
   rpcauth: createOption({
@@ -883,11 +914,12 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'RPC clients connect using the usual http basic authentication.',
       'You can generate these values with the ./share/rpcauth/rpcauth.py script.',
     ],
+    defaultValue: undefined,
   }),
 
   rpcbind: createOption({
     longName: 'rpc bind',
-    typeName: 'string',
+    typeName: 'string[]',
     description: [
       'Bind to given address to listen for JSON-RPC connections.',
       'This option is ignored unless -rpcallowip is also passed.',
@@ -895,6 +927,21 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'By default only local connections are allowed.',
     ],
     onlyAppliesToMain: true,
+    defaultValue: undefined,
+  }),
+
+  rpcclienttimeout: createOption({
+    longName: 'rpc client timeout',
+    typeName: 'number',
+    description: ['Timeout in seconds during HTTP requests, or 0 for no timeout.'],
+    defaultValue: 900,
+  }),
+
+  rpcconnect: createOption({
+    longName: 'rpc connect',
+    typeName: 'string',
+    description: ['Send commands to node running on <ip>'],
+    defaultValue: '127.0.0.1',
   }),
 
   rpccookiefile: createOption({
@@ -911,6 +958,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Deprecated. Specify a plain-text RPC password.',
       'If this option is provided, RPC "cookie-based" auth is disabled',
     ],
+    defaultValue: undefined,
   }),
 
   rpcport: createOption({
@@ -953,6 +1001,14 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'rpc user',
     typeName: 'string',
     description: ['Specify username for RPC http basic authentication'],
+    defaultValue: undefined,
+  }),
+
+  rpcwait: createOption({
+    longName: 'rpc wait',
+    typeName: 'boolean',
+    description: ['Wait for RPC server to start'],
+    defaultValue: false,
   }),
 
   rpcworkqueue: createOption({
@@ -973,6 +1029,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'seed node',
     typeName: 'string',
     description: ['Connect to the specified IP address to retrieve peer addresses.'],
+    defaultValue: undefined,
   }),
 
   server: createOption({
@@ -1049,6 +1106,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'tor password',
     typeName: 'string',
     description: ['Tor control port password.'],
+    defaultValue: undefined,
   }),
 
   txconfirmtarget: createOption({
@@ -1074,6 +1132,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'user agent comment',
     typeName: 'string[]',
     description: ['Append a comment to the user agent string.'],
+    defaultValue: undefined,
   }),
 
   upgradewallet: createOption({
@@ -1100,6 +1159,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     notAllowedIn: {
       main: true,
     },
+    defaultValue: undefined,
   }),
 
   wallet: createOption({
@@ -1110,6 +1170,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Path will be created if it does not exist.',
     ],
     onlyAppliesToMain: true,
+    defaultValue: undefined,
   }),
 
   walletbroadcast: createOption({
@@ -1133,6 +1194,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Execute command when a wallet transaction changes.',
       '"%s" in command string is replaced by transaction ID',
     ],
+    defaultValue: undefined,
   }),
 
   walletrbf: createOption({
@@ -1157,6 +1219,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     description: [
       'Bind to given address and whitelist peers connecting to it. Use [host]:port notation for IPv6.',
     ],
+    defaultValue: undefined,
   }),
 
   whitelist: createOption({
@@ -1168,6 +1231,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
       'Their transactions are always relayed, even if they are already in the mempool.',
       'This option is useful for a gateway node.',
     ],
+    defaultValue: undefined,
   }),
 
   whitelistforcerelay: createOption({
@@ -1196,29 +1260,34 @@ export const BITCOIN_CONFIG_OPTIONS = {
       '1 means keep all transaction metadata',
       '2 means drop transaction metadata.',
     ],
+    defaultValue: undefined,
   }),
 
   zmqpubhashblock: createOption({
     longName: 'zeromq publish hash block',
     typeName: 'string',
     description: ['Enable publishing of block hashes to <address>.'],
+    defaultValue: undefined,
   }),
 
   zmqpubhashtx: createOption({
     longName: 'zeromq publish hash transaction',
     typeName: 'string',
     description: ['Enable publishing of transaction hashes to <address>.'],
+    defaultValue: undefined,
   }),
 
   zmqpubrawblock: createOption({
     longName: 'zeromq publish raw block',
     typeName: 'string',
     description: ['Enable publishing of raw block hex to <address>.'],
+    defaultValue: undefined,
   }),
 
   zmqpubrawtx: createOption({
     longName: 'zeromq publish raw transaction',
     typeName: 'string',
     description: ['Enable publishing of raw transaction hex to <address>.'],
+    defaultValue: undefined,
   }),
 };

@@ -2,7 +2,11 @@ import { readFileSync, existsSync } from 'fs';
 import { BITCOIN_CONF_FILENAME, getDefaults } from './default';
 import { parseConfigFileContents } from './parse';
 import { toAbsolute } from './util';
-import { SectionedBitcoinConfig } from './config';
+import {
+  SectionedBitcoinConfig,
+  BitcoinConfigWithDefaults,
+  BitcoinConfig,
+} from './config';
 import { dirname } from 'path';
 import { mergeUpActiveSectionConfig, mergeSectionedBitcoinConfigs } from './merge';
 
@@ -11,16 +15,22 @@ function readOneConfigFile(filePath: string) {
   return parseConfigFileContents(fileContents);
 }
 
-type ReadConfigFilesOptions = Partial<{
+type ReadConfigFilesOptions<T> = Partial<{
   conf: string;
   datadir: string;
-  withDefaults: boolean;
+  withDefaults: T;
 }>;
 
-export function readConfigFiles(options: ReadConfigFilesOptions = {}) {
+type ReadConfigFilesReturnValue<T> = T extends true
+  ? BitcoinConfigWithDefaults
+  : BitcoinConfig;
+
+export function readConfigFiles<T extends boolean>(
+  options: ReadConfigFilesOptions<T> = {},
+): ReadConfigFilesReturnValue<T> {
   const { conf, datadir, withDefaults } = options;
   let sectionedBitcoinConfig: SectionedBitcoinConfig = {};
-  const confPath = toAbsolute(conf || BITCOIN_CONF_FILENAME, datadir);
+  const confPath = toAbsolute(conf || BITCOIN_CONF_FILENAME, { datadir });
   try {
     sectionedBitcoinConfig = readOneConfigFile(confPath);
   } catch (ex) {
@@ -31,7 +41,7 @@ export function readConfigFiles(options: ReadConfigFilesOptions = {}) {
   const { includeconf } = mergeUpActiveSectionConfig(sectionedBitcoinConfig);
   if (includeconf) {
     for (const includeconfItem of includeconf) {
-      const includedConfPath = toAbsolute(includeconfItem, datadir);
+      const includedConfPath = toAbsolute(includeconfItem, { datadir });
       const includedBitcoinConfig = readOneConfigFile(includedConfPath);
       sectionedBitcoinConfig = mergeSectionedBitcoinConfigs(
         sectionedBitcoinConfig,
@@ -45,14 +55,14 @@ export function readConfigFiles(options: ReadConfigFilesOptions = {}) {
       getDefaults(),
     );
   }
-  const config = mergeUpActiveSectionConfig(sectionedBitcoinConfig);
-  if (config.includeconf !== includeconf) {
+  const bitcoinConfig = mergeUpActiveSectionConfig(sectionedBitcoinConfig);
+  if (bitcoinConfig.includeconf !== includeconf) {
     throw new Error(
       "Included conf files are not allowed to have includeconf's themselves",
     );
   }
   if (datadir) {
-    config.datadir = datadir;
+    bitcoinConfig.datadir = datadir;
   }
-  return config;
+  return bitcoinConfig as ReadConfigFilesReturnValue<T>;
 }

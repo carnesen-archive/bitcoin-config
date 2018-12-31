@@ -70,6 +70,11 @@ describe('readConfigFiles', () => {
     expect(config.rpcuser === 'foo').toEqual(true);
   });
 
+  it('attaches a zero-length value of a "string" option as a zero-length string', () => {
+    const config = readConfigFiles({ conf: tempWrite.sync('rpcuser=') });
+    expect(config.rpcuser).toEqual('');
+  });
+
   it('attaches a value of a "string[]" option as a string array', () => {
     const config = readConfigFiles({ conf: tempWrite.sync('rpcauth=foo') });
     expect(config.rpcauth![0] === 'foo').toEqual(true);
@@ -90,12 +95,17 @@ describe('readConfigFiles', () => {
     expect(config).toEqual({ blocksonly: false });
   });
 
-  it('attaches an undefined value of a "boolean" option as undefined', () => {
+  it('attaches an undefined value of a "boolean" option as `true`', () => {
     const config = readConfigFiles({ conf: tempWrite.sync('blocksonly=') });
-    expect(config).toEqual({ blocksonly: undefined });
+    expect(config).toEqual({ blocksonly: true });
   });
 
-  it('attaches a truthy value that\'s not "1" of a "boolean" option as false', () => {
+  it('attaches a value "+123foo" of a "boolean" option as true', () => {
+    const config = readConfigFiles({ conf: tempWrite.sync('blocksonly=+123foo') });
+    expect(config).toEqual({ blocksonly: true });
+  });
+
+  it('attaches a value "true" of a "boolean" option as false', () => {
     const config = readConfigFiles({ conf: tempWrite.sync('blocksonly=true') });
     expect(config).toEqual({ blocksonly: false });
   });

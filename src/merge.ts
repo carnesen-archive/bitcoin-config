@@ -1,6 +1,7 @@
 import { SectionedBitcoinConfig, BitcoinConfig, Sections } from './config';
-import { SECTION_NAMES, SectionName } from './names';
+import { SECTION_NAMES } from './names';
 import { BITCOIN_CONFIG_OPTIONS } from './options';
+import { getActiveSectionName } from './util';
 
 // Options with value undefined are copied into the merged config.
 // Options with array values are merged together with config0 values coming first.
@@ -63,20 +64,6 @@ export function mergeSectionedBitcoinConfigs(
     mergedSectionedBitcoinConfig.sections = sections0 || sections1;
   }
   return mergedSectionedBitcoinConfig;
-}
-
-function getActiveSectionName(bitcoinConfig: BitcoinConfig): SectionName {
-  const { regtest, testnet } = bitcoinConfig;
-  if (regtest && testnet) {
-    throw new Error('regtest and testnet cannot both be set to true');
-  }
-  if (regtest) {
-    return 'regtest';
-  }
-  if (testnet) {
-    return 'test';
-  }
-  return 'main';
 }
 
 export function mergeUpActiveSectionConfig(

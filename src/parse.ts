@@ -3,10 +3,7 @@ import { findOption } from './util';
 import { castToSectionName, TypeName, SectionName } from './names';
 import { mergeSectionedBitcoinConfigs } from './merge';
 
-function castToValue(typeName: TypeName, str: string) {
-  if (str.length === 0) {
-    return undefined;
-  }
+function parseValue(typeName: TypeName, str: string) {
   switch (typeName) {
     case 'string': {
       return str;
@@ -15,7 +12,17 @@ function castToValue(typeName: TypeName, str: string) {
       return [str];
     }
     case 'boolean': {
-      return str === '1';
+      // Booleans are surprisingly somewhat complex. See, e.g.:
+      // https://github.com/bitcoin/bitcoin/pull/12713#discussion_r176128984
+      // https://github.com/bitcoin/bitcoin/blob/2741b2b6f4688ee46caaa48b51c74a110320d50d/src/util/system.cpp#L189
+      if (str.length === 0) {
+        return true;
+      }
+      // The following reproduces C++'s "atoi" logic
+      const leadingNumberRegExp = /^[+\-]?[0-9]*/;
+      const matches = str.trim().match(leadingNumberRegExp);
+      const num = matches ? Number(matches[0]) : 0;
+      return num !== 0;
     }
     case 'number': {
       return Number(str);
@@ -31,9 +38,6 @@ function parseLine(line: string, sectionName?: SectionName): SectionedBitcoinCon
     throw new Error('Expected "name = value"');
   }
   const lhs = line.slice(0, indexOfEqualsSign).trim();
-  if (lhs.length === 0) {
-    throw new Error('Empty option name');
-  }
   const rhs = line.slice(indexOfEqualsSign + 1).trim();
   if (!sectionName) {
     const indexOfDot = lhs.indexOf('.');
@@ -46,7 +50,7 @@ function parseLine(line: string, sectionName?: SectionName): SectionedBitcoinCon
       return {
         sections: {
           [dotNotationSectionName]: {
-            [maybeOptionName]: castToValue(option.typeName, rhs),
+            [maybeOptionName]: parseValue(option.typeName, rhs),
           },
         },
       };
@@ -54,7 +58,7 @@ function parseLine(line: string, sectionName?: SectionName): SectionedBitcoinCon
     // This line does not use dot notation
     const maybeOptionName = lhs;
     const option = findOption(maybeOptionName);
-    return { [maybeOptionName]: castToValue(option.typeName, rhs) };
+    return { [maybeOptionName]: parseValue(option.typeName, rhs) };
   }
   if (lhs.indexOf('.') > -1) {
     throw new Error('Dot notation is only allowed in top section');
@@ -62,7 +66,7 @@ function parseLine(line: string, sectionName?: SectionName): SectionedBitcoinCon
   const maybeOptionName = lhs;
   const option = findOption(maybeOptionName, sectionName);
   return {
-    sections: { [sectionName]: { [maybeOptionName]: castToValue(option.typeName, rhs) } },
+    sections: { [sectionName]: { [maybeOptionName]: parseValue(option.typeName, rhs) } },
   };
 }
 
