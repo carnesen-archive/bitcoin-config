@@ -1,4 +1,4 @@
-# bitcoin-config [![Build Status](https://travis-ci.org/carnesen/bitcoin-config.svg?branch=master)](https://travis-ci.org/carnesen/bitcoin-config)
+# bitcoin-config [![Build Status](https://travis-ci.com/carnesen/bitcoin-config.svg?branch=master)](https://travis-ci.com/carnesen/bitcoin-config)
 
 Constants and utilities related to bitcoin configuration
 
