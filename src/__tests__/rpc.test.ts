@@ -6,8 +6,6 @@ import { URL } from 'url';
 import { BITCOIN_CONFIG_OPTIONS } from '../options';
 import { mkdirSync, writeFileSync } from 'fs';
 
-// jest.mock('../read-config');
-
 describe('getRpcHref', () => {
   it('by default reads cookie file and returns an "href" connection string', () => {
     // Unless bitcoin is running in main mode with the default datadir

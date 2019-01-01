@@ -234,8 +234,12 @@ export const BITCOIN_CONFIG_OPTIONS = {
   daemon: createOption({
     longName: 'daemon',
     typeName: 'boolean',
-    description: ['Run in the background as a daemon and accept commands.'],
-    defaultValue: true,
+    description: [
+      'By default when the node is launched via the bitcoind executable, the process runs',
+      'in the foreground and outputs its logs to the terminal. When "daemon" to "1" (true)',
+      'bitcoind runs in the background. In both cases, the logs are also written to disk.',
+    ],
+    defaultValue: false,
   }),
 
   datacarrier: createOption({
@@ -1034,8 +1038,13 @@ export const BITCOIN_CONFIG_OPTIONS = {
   server: createOption({
     longName: 'server',
     typeName: 'boolean',
-    description: ['Accept command line and JSON-RPC commands.'],
-    defaultValue: false,
+    description: [
+      'Unlike bitcoind, for which the JSON-RPC interface is enabled by default,',
+      'when a node is launched via bitcoin-qt, the JSON-RPC interface is disabled',
+      'unless "server" is set to "1" (true). Simlarly, setting "server" to "0" (false)',
+      'disables the JSON-RPC interface when the node is launched via bitcoind.',
+    ],
+    defaultValue: undefined,
   }),
 
   shrinkdebugfile: createOption({

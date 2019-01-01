@@ -6,7 +6,7 @@ import { SECTION_NAMES, SectionName } from './names';
 import { setActiveSectionName } from './util';
 import { mergeUpActiveSectionConfig } from './merge';
 
-export const BITCOIN_CONF_FILENAME = 'bitcoin.conf';
+export const BITCOIN_CONF = 'bitcoin.conf';
 
 export function getDefaultDatadir(p = platform()) {
   switch (p) {

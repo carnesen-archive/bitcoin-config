@@ -1,9 +1,10 @@
 import { readFileSync, existsSync } from 'fs';
-import { BITCOIN_CONF_FILENAME } from './default';
-import { parseConfigFileContents } from './parse';
-import { toAbsolute } from './util';
-import { SectionedBitcoinConfig, BitcoinConfig } from './config';
 import { dirname } from 'path';
+
+import { BITCOIN_CONF } from './default';
+import { parseConfigFileContents } from './parse';
+import { toAbsolute, checkLocation } from './util';
+import { SectionedBitcoinConfig, BitcoinConfig } from './config';
 import { mergeUpActiveSectionConfig, mergeSectionedBitcoinConfigs } from './merge';
 
 function readOneConfigFile(filePath: string) {
@@ -12,40 +13,35 @@ function readOneConfigFile(filePath: string) {
 }
 
 export function readConfigFiles(
-  location: Partial<{
-    conf: string;
-    datadir: string;
-  }> = {},
+  location: Partial<{ conf: string; datadir: string }> = {},
 ): BitcoinConfig {
+  checkLocation(location);
   const { conf, datadir } = location;
-  let sectionedBitcoinConfig: SectionedBitcoinConfig = {};
-  const confPath = toAbsolute(conf || BITCOIN_CONF_FILENAME, { datadir });
+  let config: SectionedBitcoinConfig = {};
+  const filePath = toAbsolute(conf || BITCOIN_CONF, { datadir });
   try {
-    sectionedBitcoinConfig = readOneConfigFile(confPath);
+    config = readOneConfigFile(filePath);
   } catch (ex) {
-    if (ex.code !== 'ENOENT' || conf || !existsSync(dirname(confPath))) {
+    if (ex.code !== 'ENOENT' || conf || !existsSync(dirname(filePath))) {
       throw ex;
     }
   }
-  const { includeconf } = mergeUpActiveSectionConfig(sectionedBitcoinConfig);
+  const { includeconf } = mergeUpActiveSectionConfig(config);
   if (includeconf) {
-    for (const includeconfItem of includeconf) {
-      const includedConfPath = toAbsolute(includeconfItem, { datadir });
-      const includedBitcoinConfig = readOneConfigFile(includedConfPath);
-      sectionedBitcoinConfig = mergeSectionedBitcoinConfigs(
-        sectionedBitcoinConfig,
-        includedBitcoinConfig,
-      );
+    for (const item of includeconf) {
+      const includedFilePath = toAbsolute(item, { datadir });
+      const includedConfig = readOneConfigFile(includedFilePath);
+      config = mergeSectionedBitcoinConfigs(config, includedConfig);
     }
   }
-  const bitcoinConfig = mergeUpActiveSectionConfig(sectionedBitcoinConfig);
-  if (bitcoinConfig.includeconf !== includeconf) {
+  const mergedConfig = mergeUpActiveSectionConfig(config);
+  if (mergedConfig.includeconf !== includeconf) {
     throw new Error(
       "Included conf files are not allowed to have includeconf's themselves",
     );
   }
   if (datadir) {
-    bitcoinConfig.datadir = datadir;
+    mergedConfig.datadir = datadir;
   }
-  return bitcoinConfig;
+  return mergedConfig;
 }

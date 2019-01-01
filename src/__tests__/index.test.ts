@@ -1,6 +1,6 @@
 import {
   readConfigFiles,
-  writeConfigFiles,
+  writeConfigFile,
   BitcoinConfig,
   SectionedBitcoinConfig,
   getRpcHref,
@@ -16,8 +16,8 @@ describe('index', () => {
   });
 
   it('exports a function named `writeConfigFiles`', () => {
-    expect(typeof writeConfigFiles).toBe('function');
-    expect(writeConfigFiles.name).toBe('writeConfigFiles');
+    expect(typeof writeConfigFile).toBe('function');
+    expect(writeConfigFile.name).toBe('writeConfigFile');
   });
 
   it('exports a function named `getRpcHref`', () => {
@@ -40,7 +40,7 @@ describe('index', () => {
       rpcuser: 'carnesen',
       rpcpassword: '12345678',
     };
-    writeConfigFiles(expectedBitcoinConfig, { conf });
+    writeConfigFile(expectedBitcoinConfig, { conf });
     const bitcoinConfig = readConfigFiles({ conf });
     expect(bitcoinConfig).toEqual(expectedBitcoinConfig);
   });
@@ -48,7 +48,7 @@ describe('index', () => {
   it('behaves sanely with respect to writing and then reading defaults', () => {
     const defaultConfig = getDefaultConfig('main');
     const conf = tempy.file();
-    writeConfigFiles(defaultConfig, { conf });
+    writeConfigFile(defaultConfig, { conf });
     const bitcoinConfig = readConfigFiles({ conf });
     expect(mergeUpActiveSectionConfig(defaultConfig)).toEqual(bitcoinConfig);
   });

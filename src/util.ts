@@ -4,9 +4,9 @@ import { BITCOIN_CONFIG_OPTIONS, NotAllowedIn } from './options';
 import { SectionName } from './names';
 import { BitcoinConfig } from './config';
 
-type NetworkConfig = Pick<BitcoinConfig, 'regtest' | 'testnet'>;
+type SectionSelectionConfig = Pick<BitcoinConfig, 'regtest' | 'testnet'>;
 
-export function getActiveSectionName(config: NetworkConfig): SectionName {
+export function getActiveSectionName(config: SectionSelectionConfig): SectionName {
   const { regtest, testnet } = config;
   if (regtest && testnet) {
     throw new Error('regtest and testnet cannot both be set to true');
@@ -20,7 +20,10 @@ export function getActiveSectionName(config: NetworkConfig): SectionName {
   return 'main';
 }
 
-export function setActiveSectionName(config: NetworkConfig, sectionName: SectionName) {
+export function setActiveSectionName(
+  config: SectionSelectionConfig,
+  sectionName: SectionName,
+) {
   config.regtest = false;
   config.testnet = false;
   switch (sectionName) {
@@ -30,6 +33,13 @@ export function setActiveSectionName(config: NetworkConfig, sectionName: Section
     case 'regtest':
       config.regtest = true;
       break;
+  }
+}
+
+export function checkLocation(location: Partial<{ conf: string; datadir: string }>) {
+  const { conf, datadir } = location;
+  if (conf && datadir && isAbsolute(conf)) {
+    throw new Error('datadir is only allowed if conf is absent or a relative path');
   }
 }
 

@@ -40,11 +40,10 @@ describe('readConfigFiles', () => {
     ).toEqual('carl');
   });
 
-  it('reads "conf" if it\'s an absolute path, regardless of datadir value', () => {
-    const filePath = tempWrite.sync('rpcuser=susan');
-    const datadir = 'this value is not checked in any way if conf is absolute';
-    expect(isAbsolute(filePath)).toBe(true);
-    expect(readConfigFiles({ datadir, conf: filePath }).rpcuser).toEqual('susan');
+  it('throws "datadir is only allowed" if datadir is provided and conf is an absolute path', () => {
+    expect(() =>
+      readConfigFiles({ datadir: 'some value foo', conf: '/an/absolute/path' }),
+    ).toThrow('datadir is only allowed');
   });
 
   it('reads and merges in all "includeconf" files', () => {
