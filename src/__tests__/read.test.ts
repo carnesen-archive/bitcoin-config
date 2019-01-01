@@ -1,4 +1,4 @@
-import { isAbsolute, dirname, basename } from 'path';
+import { dirname, basename } from 'path';
 import tempWrite = require('temp-write');
 import * as tempy from 'tempy';
 import { readConfigFiles } from '../read';
