@@ -6,7 +6,7 @@ import { URL } from 'url';
 import { BITCOIN_CONFIG_OPTIONS } from '../options';
 import { mkdirSync, writeFileSync } from 'fs';
 
-describe('getRpcHref', () => {
+describe(getRpcHref.name, () => {
   it('by default reads cookie file and returns an "href" connection string', () => {
     // Unless bitcoin is running in main mode with the default datadir
     // this is expected to throw "ENOENT" a.k.a file not found.
@@ -14,7 +14,6 @@ describe('getRpcHref', () => {
       getRpcHref();
     } catch (ex) {
       if (ex.code !== 'ENOENT') {
-        debugger;
         throw ex;
       }
     }

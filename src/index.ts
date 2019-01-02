@@ -1,5 +1,6 @@
-export { BITCOIN_CONFIG_OPTIONS } from './options';
-export { BitcoinConfig, SectionedBitcoinConfig } from './config';
+export { getRpcHref } from './rpc';
+export { getDefaultConfig } from './default';
 export { readConfigFiles } from './read';
 export { writeConfigFile } from './write';
-export { getRpcHref } from './rpc';
+export { BITCOIN_CONFIG_OPTIONS } from './options';
+export { BitcoinConfig, SectionedConfig } from './config';

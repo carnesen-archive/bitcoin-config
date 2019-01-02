@@ -1,12 +1,11 @@
-import { writeFileSync, existsSync, renameSync } from 'fs';
+import { writeFileSync, existsSync, renameSync, readFileSync } from 'fs';
 import { EOL } from 'os';
-import { isAbsolute } from 'path';
 
-import { SectionedBitcoinConfig, BitcoinConfig } from './config';
-import { toAbsolute, findOption, checkLocation } from './util';
-import { BITCOIN_CONF } from './default';
+import { SectionedConfig, BitcoinConfig } from './config';
+import { checkIsAbsolute } from './util';
 import { Value } from './options';
 import { SECTION_NAMES, TypeName } from './names';
+import { findOption } from './find';
 const pkg = require('../package.json');
 
 function serializeOption(optionName: string, optionValue?: Value<TypeName>) {
@@ -39,8 +38,10 @@ function serializeBitcoinConfig(config: BitcoinConfig) {
   return strings.join(EOL);
 }
 
-function serializeSectionedBitcoinConfig(config: SectionedBitcoinConfig) {
-  const strings: string[] = [`# ${new Date()}: This file was written by ${pkg.name}`];
+function serializeSectionedConfig(config: SectionedConfig) {
+  const strings: string[] = [
+    `# This file was written using ${writeConfigFile.name} in ${pkg.name}`,
+  ];
 
   const { sections, ...rest } = config;
 
@@ -59,33 +60,17 @@ function serializeSectionedBitcoinConfig(config: SectionedBitcoinConfig) {
   return strings.join(EOL);
 }
 
-function writeOneConfigFile(config: SectionedBitcoinConfig, filePath: string) {
-  const serialized = serializeSectionedBitcoinConfig(config);
-  const tmpFilePath = `${filePath}.tmp`;
-  const oldFilePath = `${filePath}.bak`;
-  writeFileSync(tmpFilePath, serialized);
+export function writeConfigFile(filePath: string, config: SectionedConfig) {
+  checkIsAbsolute(filePath);
+  const fileContents = serializeSectionedConfig(config);
   if (existsSync(filePath)) {
-    renameSync(filePath, oldFilePath);
+    if (fileContents === readFileSync(filePath, { encoding: 'utf8' })) {
+      return fileContents;
+    }
+    renameSync(filePath, `${filePath}.bak`);
   }
+  const tmpFilePath = `${filePath}.tmp`;
+  writeFileSync(tmpFilePath, fileContents);
   renameSync(tmpFilePath, filePath);
-  return serialized;
-}
-
-export function writeConfigFile(
-  config: SectionedBitcoinConfig,
-  location: { conf: string; datadir?: string } | { conf?: string; datadir: string },
-) {
-  checkLocation(location);
-  if (!location || !(location.conf || location.datadir)) {
-    throw new Error('Either conf or datadir must be provided');
-  }
-  const { conf = BITCOIN_CONF, datadir } = location;
-  let mergedConfig = config;
-  if (!isAbsolute(conf)) {
-    mergedConfig = { datadir, ...config };
-  }
-  const filePath = toAbsolute(conf, { datadir });
-  const fileContents = writeOneConfigFile(mergedConfig, filePath);
-  const returnValue: [string, string] = [fileContents, filePath];
-  return returnValue;
+  return fileContents;
 }

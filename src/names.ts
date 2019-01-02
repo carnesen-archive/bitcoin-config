@@ -9,3 +9,9 @@ export function castToSectionName(maybeSectionName: string) {
   }
   return sectionName;
 }
+
+export const SECTION_SELECTION_OPTION_NAMES = [
+  'regtest' as 'regtest',
+  'testnet' as 'testnet',
+];
+export type SectionSelectionOptionName = (typeof SECTION_SELECTION_OPTION_NAMES)[number];

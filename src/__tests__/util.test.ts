@@ -2,7 +2,7 @@ import { toAbsolute } from '../util';
 import { join } from 'path';
 import { getDefaultDatadir } from '../default';
 
-describe('toAbsolute', () => {
+describe(toAbsolute.name, () => {
   it('returns the provided path if it is already absolute', () => {
     const filePath = '/foo/bar/baz';
     expect(toAbsolute(filePath)).toBe(filePath);

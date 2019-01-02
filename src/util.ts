@@ -1,10 +1,7 @@
 import { isAbsolute, join } from 'path';
 import { getDefaultDatadir } from './default';
-import { BITCOIN_CONFIG_OPTIONS, NotAllowedIn } from './options';
 import { SectionName } from './names';
-import { BitcoinConfig } from './config';
-
-type SectionSelectionConfig = Pick<BitcoinConfig, 'regtest' | 'testnet'>;
+import { SectionSelectionConfig } from './config';
 
 export function getActiveSectionName(config: SectionSelectionConfig): SectionName {
   const { regtest, testnet } = config;
@@ -36,10 +33,9 @@ export function setActiveSectionName(
   }
 }
 
-export function checkLocation(location: Partial<{ conf: string; datadir: string }>) {
-  const { conf, datadir } = location;
-  if (conf && datadir && isAbsolute(conf)) {
-    throw new Error('datadir is only allowed if conf is absent or a relative path');
+export function checkIsAbsolute(filePath: string) {
+  if (!isAbsolute(filePath)) {
+    throw new Error(`File path "${filePath}" is not absolute`);
   }
 }
 
@@ -63,34 +59,4 @@ export function toAbsolute(
       paths.push('testnet3');
   }
   return join(...paths, filePath);
-}
-
-export function findOption(maybeOptionName: string, sectionName?: SectionName) {
-  if (maybeOptionName.length === 0) {
-    throw new Error('Empty option name');
-  }
-  if (maybeOptionName.startsWith('-')) {
-    throw new Error('Options in a configuration file must not have a leading "-"');
-  }
-  const alphanumericOrHyphenRegExp = /[^\w\-]/gi;
-  if (maybeOptionName.replace(alphanumericOrHyphenRegExp, '') !== maybeOptionName) {
-    throw new Error(`Invalid option name "${maybeOptionName}"`);
-  }
-  const found = Object.entries(BITCOIN_CONFIG_OPTIONS).find(
-    ([optionName]) => optionName === maybeOptionName,
-  );
-  if (!found) {
-    throw new Error(`Unknown option "${maybeOptionName}"`);
-  }
-  const [, option] = found;
-  if (
-    sectionName &&
-    option.notAllowedIn &&
-    (option.notAllowedIn as NotAllowedIn)[sectionName]
-  ) {
-    throw new Error(
-      `Option "${maybeOptionName}" is not allowed in section "${sectionName}"`,
-    );
-  }
-  return option;
 }

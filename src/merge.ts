@@ -1,4 +1,4 @@
-import { SectionedBitcoinConfig, BitcoinConfig, Sections } from './config';
+import { SectionedConfig, BitcoinConfig, Sections } from './config';
 import { SECTION_NAMES } from './names';
 import { BITCOIN_CONFIG_OPTIONS } from './options';
 import { getActiveSectionName } from './util';
@@ -36,13 +36,13 @@ function mergeBitcoinConfigs(
   return mergedBitcoinConfig;
 }
 
-export function mergeSectionedBitcoinConfigs(
-  sectionedBitcoinConfig0: SectionedBitcoinConfig,
-  sectionedBitcoinConfig1: SectionedBitcoinConfig,
+export function mergeSectionedConfigs(
+  sectionedBitcoinConfig0: SectionedConfig,
+  sectionedBitcoinConfig1: SectionedConfig,
 ) {
   const { sections: sections0, ...bitcoinConfig0 } = sectionedBitcoinConfig0;
   const { sections: sections1, ...bitcoinConfig1 } = sectionedBitcoinConfig1;
-  const mergedSectionedBitcoinConfig: SectionedBitcoinConfig = mergeBitcoinConfigs(
+  const mergedSectionedBitcoinConfig: SectionedConfig = mergeBitcoinConfigs(
     bitcoinConfig0,
     bitcoinConfig1,
   );
@@ -67,7 +67,7 @@ export function mergeSectionedBitcoinConfigs(
 }
 
 export function mergeUpActiveSectionConfig(
-  sectionedBitcoinConfig: SectionedBitcoinConfig,
+  sectionedBitcoinConfig: SectionedConfig,
 ): BitcoinConfig {
   const activeSectionName = getActiveSectionName(sectionedBitcoinConfig);
   const { sections, ...rest } = sectionedBitcoinConfig;

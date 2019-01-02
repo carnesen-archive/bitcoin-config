@@ -8,9 +8,13 @@ export type Value<T extends TypeName> = T extends 'string'
 
 export type NotAllowedIn = { [K in SectionName]?: true };
 
-type DefaultValue<T extends TypeName> =
+export type SectionDependentDefaultValue<T extends TypeName> = {
+  [K in SectionName]: Value<T>
+};
+
+export type DefaultValue<T extends TypeName> =
   | Value<T>
-  | { [K in SectionName]: Value<T> }
+  | SectionDependentDefaultValue<T>
   | undefined;
 
 export type Option<

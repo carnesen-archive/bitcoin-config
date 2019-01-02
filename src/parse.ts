@@ -1,7 +1,7 @@
-import { SectionedBitcoinConfig } from './config';
-import { findOption } from './util';
+import { SectionedConfig } from './config';
+import { findOption } from './find';
 import { castToSectionName, TypeName, SectionName } from './names';
-import { mergeSectionedBitcoinConfigs } from './merge';
+import { mergeSectionedConfigs } from './merge';
 
 function parseValue(typeName: TypeName, str: string) {
   switch (typeName) {
@@ -32,7 +32,7 @@ function parseValue(typeName: TypeName, str: string) {
   }
 }
 
-function parseLine(line: string, sectionName?: SectionName): SectionedBitcoinConfig {
+function parseLine(line: string, sectionName?: SectionName): SectionedConfig {
   const indexOfEqualsSign = line.indexOf('=');
   if (indexOfEqualsSign === -1) {
     throw new Error('Expected "name = value"');
@@ -71,7 +71,7 @@ function parseLine(line: string, sectionName?: SectionName): SectionedBitcoinCon
 }
 
 export function parseConfigFileContents(fileContents: string) {
-  let sectionedBitcoinConfig: SectionedBitcoinConfig = {};
+  let sectionedConfig: SectionedConfig = {};
   let sectionName: SectionName;
 
   let lineNumber = 0;
@@ -103,13 +103,13 @@ export function parseConfigFileContents(fileContents: string) {
       }
 
       // name = value
-      sectionedBitcoinConfig = mergeSectionedBitcoinConfigs(
-        sectionedBitcoinConfig,
+      sectionedConfig = mergeSectionedConfigs(
+        sectionedConfig,
         parseLine(line, sectionName!),
       );
     } catch (ex) {
       throw new Error(`Parse error: ${ex.message}: line ${lineNumber}: ${originalLine}`);
     }
   }
-  return sectionedBitcoinConfig;
+  return sectionedConfig;
 }

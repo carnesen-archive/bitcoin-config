@@ -1,165 +1,111 @@
-import { isAbsolute, join } from 'path';
+import { join } from 'path';
 import * as tempy from 'tempy';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, statSync } from 'fs';
 
 import { writeConfigFile } from '../write';
 import { BITCOIN_CONFIG_OPTIONS } from '../options';
 
-describe('writeConfigFiles', () => {
-  it('writes bitcoin.conf in the specified datadir', () => {
-    const datadir = tempy.directory();
-    writeConfigFile({}, { datadir });
-    expect(existsSync(join(datadir, 'bitcoin.conf'))).toBe(true);
+describe(writeConfigFile.name, () => {
+  it('writes a config file at the specified location', () => {
+    const filePath = tempy.file();
+    writeConfigFile(filePath, {});
+    expect(existsSync(filePath)).toBe(true);
   });
 
-  it('merges location.datadir into written config if it does not have a datadir', () => {
-    const datadir = tempy.directory();
-    const [fileContents] = writeConfigFile({}, { datadir });
-    expect(fileContents).toMatch(`datadir=${datadir}`);
+  it('returns the serialized config file contents', () => {
+    const filePath = tempy.file();
+    const returnValue = writeConfigFile(filePath, { rpcuser: 'foo' });
+    const fileContents = readFileSync(filePath, { encoding: 'utf8' });
+    expect(returnValue).toBe(fileContents);
   });
 
-  it('does not merge location.datadir into written config if it has a datadir', () => {
-    const datadir = tempy.directory();
-    const [fileContents] = writeConfigFile({ datadir: '/foo/bar/baz' }, { datadir });
-    expect(fileContents).toMatch(`datadir=/foo/bar/baz`);
-  });
-
-  it('writes file to "conf" if that option is provided as an absolute path', () => {
-    const conf = tempy.file();
-    writeConfigFile({}, { conf });
-    expect(existsSync(conf)).toBe(true);
-  });
-
-  it('throws "datadir is only allowed" if datadir is provided and conf is an absolute path', () => {
-    const conf = tempy.file();
-    expect(isAbsolute(conf)).toBe(true);
-    const datadir = '/foo/bar/baz';
-    expect(() => writeConfigFile({}, { conf, datadir })).toThrow(
-      'datadir is only allowed',
-    );
-  });
-
-  it('interprets "conf" as datadir-relative if it is not an absolute path', () => {
-    const datadir = tempy.directory();
-    const conf = 'non-standard-filename.conf';
-    writeConfigFile({}, { datadir, conf });
-    expect(existsSync(join(datadir, conf))).toBe(true);
-  });
-
-  it('throws "ENOENT" if specified datadir does not exist', () => {
-    const datadir = tempy.file();
+  it('throws "ENOENT" if the directory of the specified file path does not exist', () => {
+    const filePath = join(tempy.file(), 'bitcoin.conf');
     // ^^ tempy.file() is basically just tempy.directory() without the mkdir
-    expect(() => writeConfigFile({}, { datadir })).toThrow('ENOENT');
-  });
-
-  it('throws "ENOENT" if conf is provided in a directory that does not already exist', () => {
-    const conf = join(tempy.file(), 'some-filename.conf');
-    // ^^ tempy.file() is basically just tempy.directory() without the mkdir
-    expect(() => writeConfigFile({}, { datadir: conf })).toThrow('ENOENT');
+    expect(() => writeConfigFile(filePath, {})).toThrow('ENOENT');
   });
 
   it('creates a backup of an existing file first if one exists', () => {
-    const conf = tempy.file();
-    writeConfigFile({ rpcuser: 'foo' }, { conf });
-    const fileContents = readFileSync(conf, 'utf8');
-    writeConfigFile({ rpcuser: 'bar' }, { conf });
-    const backupFileContents = readFileSync(`${conf}.bak`, 'utf8');
-    expect(fileContents).toBe(backupFileContents);
+    const filePath = tempy.file();
+    writeConfigFile(filePath, { rpcuser: 'foo' });
+    const fileContents = readFileSync(filePath, 'utf8');
+    writeConfigFile(filePath, { rpcuser: 'bar' });
+    const bakFileContents = readFileSync(`${filePath}.bak`, 'utf8');
+    expect(fileContents).toBe(bakFileContents);
   });
 
-  it('returns an array of the file paths and contents that were written', () => {
+  it('does not re-write the file or the .bak file if the contents have not changed', () => {
     const filePath = tempy.file();
-    const returnValue = writeConfigFile({ rpcuser: 'foo' }, { conf: filePath });
-    const fileContents = readFileSync(filePath, 'utf8');
-    expect(returnValue).toEqual([fileContents, filePath]);
+    const fooFileContents = writeConfigFile(filePath, { rpcuser: 'foo' });
+    writeConfigFile(filePath, { rpcuser: 'bar' });
+    const stats = statSync(filePath);
+    writeConfigFile(filePath, { rpcuser: 'bar' });
+    expect(statSync(filePath).mtime).toEqual(stats.mtime);
+    expect(readFileSync(`${filePath}.bak`, { encoding: 'utf8' })).toBe(fooFileContents);
   });
 
   it('writes a header comment line', () => {
-    const [fileContents] = writeConfigFile({}, { conf: tempy.file() });
-    expect(fileContents).toMatch(/^# .* written by/);
+    const fileContents = writeConfigFile(tempy.file(), {});
+    expect(fileContents).toMatch(/^# .* written using .* @carnesen\/bitcoin-config/);
   });
 
   it('writes string option as name=value', () => {
-    const [fileContents] = writeConfigFile({ rpcuser: 'sinh' }, { conf: tempy.file() });
+    const fileContents = writeConfigFile(tempy.file(), { rpcuser: 'sinh' });
     expect(fileContents).toMatch(/^rpcuser=sinh$/m);
   });
 
   it('writes number option as name=value', () => {
-    const [fileContents] = writeConfigFile({ banscore: 12 }, { conf: tempy.file() });
+    const fileContents = writeConfigFile(tempy.file(), { banscore: 12 });
     expect(fileContents).toMatch(/^banscore=12$/m);
   });
 
   it('writes boolean option value `true` as name=1', () => {
-    const [fileContents] = writeConfigFile({ blocksonly: true }, { conf: tempy.file() });
+    const fileContents = writeConfigFile(tempy.file(), { blocksonly: true });
     expect(fileContents).toMatch(/^blocksonly=1$/m);
   });
 
   it('writes boolean option value `false` as name=0', () => {
-    const [fileContents] = writeConfigFile({ blocksonly: false }, { conf: tempy.file() });
+    const fileContents = writeConfigFile(tempy.file(), { blocksonly: false });
     expect(fileContents).toMatch(/^blocksonly=0$/m);
   });
 
   it('writes explicitly undefined values as comments "#name="', () => {
-    const [fileContents] = writeConfigFile(
-      { rpcuser: undefined },
-      { conf: tempy.file() },
-    );
+    const fileContents = writeConfigFile(tempy.file(), { rpcuser: undefined });
     expect(fileContents).toMatch(/^#rpcuser=$/m);
   });
 
   it('writes multi-valued string option as multiple name=value pairs', () => {
-    const [fileContents] = writeConfigFile(
-      { rpcauth: ['foo', 'bar'] },
-      { conf: tempy.file() },
-    );
+    const fileContents = writeConfigFile(tempy.file(), { rpcauth: ['foo', 'bar'] });
     expect(fileContents).toMatch(/^rpcauth=foo\n\r?rpcauth=bar$/m);
   });
 
   it('writes option description of defined values as comments', () => {
-    const [fileContents] = writeConfigFile(
-      { rpcauth: ['foo', 'bar'] },
-      { conf: tempy.file() },
-    );
+    const fileContents = writeConfigFile(tempy.file(), { rpcauth: ['foo', 'bar'] });
     for (const line of BITCOIN_CONFIG_OPTIONS.rpcauth.description) {
       expect(fileContents.includes(`# ${line}`)).toBe(true);
     }
   });
 
   it('writes option description of explicitly undefined values as comments', () => {
-    const [fileContents] = writeConfigFile(
-      { rpcuser: undefined },
-      { conf: tempy.file() },
-    );
+    const fileContents = writeConfigFile(tempy.file(), { rpcuser: undefined });
     for (const line of BITCOIN_CONFIG_OPTIONS.rpcuser.description) {
       expect(fileContents.includes(`# ${line}`)).toBe(true);
     }
   });
 
   it('does not write option description of implicitly undefined values as comments', () => {
-    const [fileContents] = writeConfigFile(
-      { rpcuser: undefined },
-      { conf: tempy.file() },
-    );
+    const fileContents = writeConfigFile(tempy.file(), { rpcuser: undefined });
     for (const line of BITCOIN_CONFIG_OPTIONS.rpcpassword.description) {
       expect(fileContents.includes(`# ${line}`)).toBe(false);
     }
   });
 
-  it('throws "conf or datadir" if neither conf nor datadir is provided', () => {
-    expect(() => {
-      writeConfigFile({}, {} as { datadir: string });
-    }).toThrow('conf or datadir');
-  });
-
   it('writes section header for explicitly defined `sections` property', () => {
-    const [fileContents] = writeConfigFile(
-      {
-        sections: {
-          main: {},
-        },
+    const fileContents = writeConfigFile(tempy.file(), {
+      sections: {
+        main: {},
       },
-      { conf: tempy.file() },
-    );
+    });
     expect(fileContents).toMatch(/^\[main\]$/m);
   });
 });

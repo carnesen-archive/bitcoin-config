@@ -1,37 +1,43 @@
 import { readFileSync, existsSync } from 'fs';
 import { dirname } from 'path';
 
-import { BITCOIN_CONF } from './default';
+import { DEFAULT_CONFIG_FILE_PATH } from './default';
 import { parseConfigFileContents } from './parse';
-import { toAbsolute, checkLocation } from './util';
-import { SectionedBitcoinConfig, BitcoinConfig } from './config';
-import { mergeUpActiveSectionConfig, mergeSectionedBitcoinConfigs } from './merge';
+import { toAbsolute, checkIsAbsolute } from './util';
+import { SectionedConfig, BitcoinConfig } from './config';
+import { mergeUpActiveSectionConfig, mergeSectionedConfigs } from './merge';
 
 function readOneConfigFile(filePath: string) {
   const fileContents = readFileSync(filePath, { encoding: 'utf8' });
   return parseConfigFileContents(fileContents);
 }
 
-export function readConfigFiles(
-  location: Partial<{ conf: string; datadir: string }> = {},
-): BitcoinConfig {
-  checkLocation(location);
-  const { conf, datadir } = location;
-  let config: SectionedBitcoinConfig = {};
-  const filePath = toAbsolute(conf || BITCOIN_CONF, { datadir });
+export function readConfigFiles(filePath?: string): BitcoinConfig {
+  if (filePath) {
+    checkIsAbsolute(filePath);
+  }
+  let config: SectionedConfig = {};
   try {
-    config = readOneConfigFile(filePath);
+    config = readOneConfigFile(filePath || DEFAULT_CONFIG_FILE_PATH);
   } catch (ex) {
-    if (ex.code !== 'ENOENT' || conf || !existsSync(dirname(filePath))) {
+    // Throw on:
+    //   any error that's not "file not found"
+    //   "file not found" && filePath has been passed
+    //   "file not found" && filePath has not been passed && default path's directory does not exist
+    if (
+      ex.code !== 'ENOENT' ||
+      filePath ||
+      !existsSync(dirname(DEFAULT_CONFIG_FILE_PATH))
+    ) {
       throw ex;
     }
   }
-  const { includeconf } = mergeUpActiveSectionConfig(config);
+  const { includeconf, datadir } = mergeUpActiveSectionConfig(config);
   if (includeconf) {
     for (const item of includeconf) {
       const includedFilePath = toAbsolute(item, { datadir });
       const includedConfig = readOneConfigFile(includedFilePath);
-      config = mergeSectionedBitcoinConfigs(config, includedConfig);
+      config = mergeSectionedConfigs(config, includedConfig);
     }
   }
   const mergedConfig = mergeUpActiveSectionConfig(config);
@@ -39,9 +45,6 @@ export function readConfigFiles(
     throw new Error(
       "Included conf files are not allowed to have includeconf's themselves",
     );
-  }
-  if (datadir) {
-    mergedConfig.datadir = datadir;
   }
   return mergedConfig;
 }
