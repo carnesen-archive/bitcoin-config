@@ -4,7 +4,7 @@ import { EOL } from 'os';
 import { SectionedConfig, BitcoinConfig } from './config';
 import { checkIsAbsolute } from './util';
 import { Value } from './options';
-import { SECTION_NAMES, TypeName } from './names';
+import { CHAIN_NAMES, TypeName } from './names';
 import { findOption } from './find';
 const pkg = require('../package.json');
 
@@ -40,7 +40,7 @@ function serializeBitcoinConfig(config: BitcoinConfig) {
 
 function serializeSectionedConfig(config: SectionedConfig) {
   const strings: string[] = [
-    `# This file was written using ${writeConfigFile.name} in ${pkg.name}`,
+    `# This file was written using ${writeConfigFile.name} from ${pkg.name}`,
   ];
 
   const { sections, ...rest } = config;
@@ -49,10 +49,11 @@ function serializeSectionedConfig(config: SectionedConfig) {
   strings.push(serializeBitcoinConfig(rest));
 
   if (sections) {
-    for (const sectionName of SECTION_NAMES) {
-      const sectionConfig = sections[sectionName];
+    for (const chainName of CHAIN_NAMES) {
+      const sectionConfig = sections[chainName];
       if (sectionConfig) {
-        strings.push(`[${sectionName}]`);
+        strings.push(`[${chainName}]`);
+        strings.push('');
         strings.push(serializeBitcoinConfig(sectionConfig));
       }
     }

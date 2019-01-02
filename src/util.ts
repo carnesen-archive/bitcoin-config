@@ -1,9 +1,9 @@
 import { isAbsolute, join } from 'path';
 import { getDefaultDatadir } from './default';
-import { SectionName } from './names';
-import { SectionSelectionConfig } from './config';
+import { ChainName } from './names';
+import { ChainSelectionConfig } from './config';
 
-export function getActiveSectionName(config: SectionSelectionConfig): SectionName {
+export function getActiveChainName(config: ChainSelectionConfig): ChainName {
   const { regtest, testnet } = config;
   if (regtest && testnet) {
     throw new Error('regtest and testnet cannot both be set to true');
@@ -17,13 +17,10 @@ export function getActiveSectionName(config: SectionSelectionConfig): SectionNam
   return 'main';
 }
 
-export function setActiveSectionName(
-  config: SectionSelectionConfig,
-  sectionName: SectionName,
-) {
+export function setActiveChainName(config: ChainSelectionConfig, chainName: ChainName) {
   config.regtest = false;
   config.testnet = false;
-  switch (sectionName) {
+  switch (chainName) {
     case 'test':
       config.testnet = true;
       break;
@@ -41,9 +38,9 @@ export function checkIsAbsolute(filePath: string) {
 
 export function toAbsolute(
   filePath: string,
-  options: { datadir?: string; sectionName?: SectionName } = {},
+  options: { datadir?: string; chainName?: ChainName } = {},
 ) {
-  const { datadir, sectionName } = options;
+  const { datadir, chainName } = options;
   if (isAbsolute(filePath)) {
     return filePath;
   }
@@ -51,7 +48,7 @@ export function toAbsolute(
     throw new Error('Path "datadir" must be absolute');
   }
   const paths = [datadir || getDefaultDatadir()];
-  switch (sectionName) {
+  switch (chainName) {
     case 'regtest':
       paths.push('regtest');
       break;

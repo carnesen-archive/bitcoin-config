@@ -1,17 +1,17 @@
 export type TypeName = 'string' | 'string[]' | 'boolean' | 'number';
 
-export const SECTION_NAMES = ['main' as 'main', 'regtest' as 'regtest', 'test' as 'test'];
-export type SectionName = (typeof SECTION_NAMES)[number];
-export function castToSectionName(maybeSectionName: string) {
-  const sectionName = maybeSectionName as SectionName;
-  if (!SECTION_NAMES.includes(sectionName)) {
-    throw new Error(`Expected name to be one of ${SECTION_NAMES}`);
+export const CHAIN_NAMES = ['main' as 'main', 'regtest' as 'regtest', 'test' as 'test'];
+export type ChainName = (typeof CHAIN_NAMES)[number];
+export function castToChainName(maybeChainName: string) {
+  const chainName = maybeChainName as ChainName;
+  if (!CHAIN_NAMES.includes(chainName)) {
+    throw new Error(`Expected name to be one of ${CHAIN_NAMES}`);
   }
-  return sectionName;
+  return chainName;
 }
 
-export const SECTION_SELECTION_OPTION_NAMES = [
+export const CHAIN_SELECTION_OPTION_NAMES = [
   'regtest' as 'regtest',
   'testnet' as 'testnet',
 ];
-export type SectionSelectionOptionName = (typeof SECTION_SELECTION_OPTION_NAMES)[number];
+export type ChainSelectionOptionName = (typeof CHAIN_SELECTION_OPTION_NAMES)[number];

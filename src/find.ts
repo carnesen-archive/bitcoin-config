@@ -1,7 +1,7 @@
 import { BITCOIN_CONFIG_OPTIONS, NotAllowedIn } from './options';
-import { SectionName } from './names';
+import { ChainName } from './names';
 
-export function findOption(maybeOptionName: string, sectionName?: SectionName) {
+export function findOption(maybeOptionName: string, chainName?: ChainName) {
   if (maybeOptionName.length === 0) {
     throw new Error('Empty option name');
   }
@@ -20,12 +20,12 @@ export function findOption(maybeOptionName: string, sectionName?: SectionName) {
   }
   const [, option] = found;
   if (
-    sectionName &&
+    chainName &&
     option.notAllowedIn &&
-    (option.notAllowedIn as NotAllowedIn)[sectionName]
+    (option.notAllowedIn as NotAllowedIn)[chainName]
   ) {
     throw new Error(
-      `Option "${maybeOptionName}" is not allowed in section "${sectionName}"`,
+      `Option "${maybeOptionName}" is not allowed in section "${chainName}"`,
     );
   }
   return option;

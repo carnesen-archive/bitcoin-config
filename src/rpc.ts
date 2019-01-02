@@ -1,7 +1,7 @@
 import { URL } from 'url';
 import { readFileSync } from 'fs';
 
-import { toAbsolute, getActiveSectionName } from './util';
+import { toAbsolute, getActiveChainName } from './util';
 import { BitcoinConfig } from './config';
 import { getDefaultConfig } from './default';
 
@@ -45,8 +45,8 @@ type GetRpcHrefConfig = Pick<
 >;
 
 export function getRpcHref(config: GetRpcHrefConfig = {}) {
-  const sectionName = getActiveSectionName(config);
-  const defaultConfig = getDefaultConfig(sectionName);
+  const chainName = getActiveChainName(config);
+  const defaultConfig = getDefaultConfig(chainName);
 
   // Determine hostname and port
   const parsedDefaultRpcconnect = parseHost(defaultConfig.rpcconnect);
@@ -77,7 +77,7 @@ export function getRpcHref(config: GetRpcHrefConfig = {}) {
       config.rpccookiefile || defaultConfig.rpccookiefile,
       {
         datadir: config.datadir,
-        sectionName,
+        chainName,
       },
     );
     const cookieFileContents = readFileSync(cookieFilePath, { encoding: 'utf8' });

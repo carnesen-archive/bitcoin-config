@@ -57,7 +57,7 @@ describe(getRpcHref.name, () => {
     expect(new URL(getRpcHref(config)).hostname).toBe('www.carnesen.com');
   });
 
-  it('reads cookie file from top datadir when sectionName is "main"', () => {
+  it('reads cookie file from top datadir when chainName is "main"', () => {
     const cookieFilePath = tempWrite.sync('foo:bar', '.cookie');
     const config = { datadir: dirname(cookieFilePath) };
     const url = new URL(getRpcHref(config));

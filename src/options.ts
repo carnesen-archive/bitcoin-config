@@ -1,4 +1,4 @@
-import { SectionName, TypeName } from './names';
+import { ChainName, TypeName } from './names';
 
 export type Value<T extends TypeName> = T extends 'string'
   ? string
@@ -6,15 +6,15 @@ export type Value<T extends TypeName> = T extends 'string'
     ? boolean
     : T extends 'number' ? number : T extends 'string[]' ? string[] : never;
 
-export type NotAllowedIn = { [K in SectionName]?: true };
+export type NotAllowedIn = { [K in ChainName]?: true };
 
-export type SectionDependentDefaultValue<T extends TypeName> = {
-  [K in SectionName]: Value<T>
+export type ChainDependentDefaultValue<T extends TypeName> = {
+  [K in ChainName]: Value<T>
 };
 
 export type DefaultValue<T extends TypeName> =
   | Value<T>
-  | SectionDependentDefaultValue<T>
+  | ChainDependentDefaultValue<T>
   | undefined;
 
 export type Option<
@@ -962,8 +962,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     longName: 'rpc password',
     typeName: 'string',
     description: [
-      'Deprecated. Specify a plain-text RPC password.',
-      'If this option is provided, RPC "cookie-based" auth is disabled',
+      'Specify a plain-text RPC basic auth password. Disables RPC "cookie-based" authentication.',
     ],
     defaultValue: undefined,
   }),
