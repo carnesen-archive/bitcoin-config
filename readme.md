@@ -11,15 +11,9 @@ $ npm install @carnesen/bitcoin-config
 ## Usage
 
 ```ts
-import {
-  writeConfigFile,
-  DEFAULT_CONFIG_FILE_PATH,
-  readConfigFiles,
-  SectionedConfig,
-  getRpcHref,
-} from '@carnesen/bitcoin-config';
+import { writeConfigFile, DEFAULT_CONFIG_FILE_PATH } from '@carnesen/bitcoin-config';
 
-const sectionedConfig: SectionedConfig = {
+writeConfigFile(DEFAULT_CONFIG_FILE_PATH, {
   regtest: true,
   daemon: true,
   rpcconnect: '1.2.3.4',
@@ -28,11 +22,12 @@ const sectionedConfig: SectionedConfig = {
       rpcport: 33333,
     },
   },
-};
+});
+```
 
-const fileContents = writeConfigFile(DEFAULT_CONFIG_FILE_PATH, sectionedConfig);
-console.log(fileContents);
-/*
+Now the file at `DEFAULT_CONFIG_FILE_PATH` has contents:
+
+```ini
 # This file was written using writeConfigFile from @carnesen/bitcoin-config
 
 # Run this node on its own independent test network.
@@ -50,9 +45,16 @@ rpcconnect=1.2.3.4
 
 # Listen for JSON-RPC connections on this port.
 rpcport=33333
-*/
+```
+
+More likely you'll be interested in reading bitcoin configuration files. Here's how:
+
+```ts
+import { readConfigFiles } from '@carnesen/bitcoin-config';
 
 const config = readConfigFiles();
+// ^^ Reads from DEFAULT_CONFIG_FILE_PATH by default
+
 console.log(config);
 /*
 { regtest: true,
@@ -60,17 +62,21 @@ console.log(config);
   rpcconnect: '1.2.3.4',
   rpcport: 33333 }
 */
+```
+Continuing that example, you can take the read config and pass it into the `getRpcHref` utility function to infer the full connection string for bitcoin's remote procedure call (RPC) interface:
 
+```ts
 const href = getRpcHref(config);
 console.log(href);
 // http://__cookie__:53a85a5866adbebbf169a1194aadea9e8ef4e8444634d942b4a3b6a6f9d825b1@1.2.3.4:33333/
 
 const url = new URL(href);
+...
 ```
 
-The above examples are written in TypeScript, but this module is distributed as ES6 JavaScript with TypeScript type declaration (.d.ts) files. These examples would be almost the same in "normal" JavaScript, but with the "import ... from" replaced by "const ... = require" and also take out the references to the type `SectionedConfig`.
+The above examples are written in TypeScript, but this module is distributed as ES6 JavaScript with TypeScript type declaration (.d.ts) files. These examples would be almost the same in "normal" Node.js JavaScript, but with the `import ... from` replaced by `const ... = require`.
 
-## API
+## Named exports
 
 ### BITCOIN_CONFIG_OPTIONS
 An object containing specifications for all available bitcoin configuration options. The object's keys are the option names (e.g. `rpcuser`) and the values are of the form:
