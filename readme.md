@@ -74,7 +74,7 @@ const url = new URL(href);
 ...
 ```
 
-The above examples are written in TypeScript, but this module is distributed as ES6 JavaScript with TypeScript type declaration (.d.ts) files. These examples would be almost the same in "normal" Node.js JavaScript, but with the `import ... from` replaced by `const ... = require`.
+The above examples are written in TypeScript, but this module is distributed as ES2017 JavaScript (suitable for Node.js version >= 8) with TypeScript type declaration (.d.ts) files. These examples would be almost the same in "normal" Node.js JavaScript, but with the `import ... from` replaced by `const ... = require`.
 
 ## Named exports
 
@@ -88,6 +88,8 @@ An object containing specifications for all available bitcoin configuration opti
   defaultValue: '',
 }
 ```
+Currently this object has 147 (!) items, and I'll endeavor to keep it up to date with each new release of Bitcoin Core. If there are missing options from older versions of the software or other implementations, please let me know by filing an issue or pull request on this project's repository on GitHub.
+
 [Source](https://github.com/carnesen/bitcoin-config/blob/master/src/options.ts)
 
 ### BitcoinConfig
@@ -113,7 +115,7 @@ rpcpassword=abcd1234
 [regtest]
 rpcpassword=password
 ```
-means that when the node is running on the "main" chain `rpcpassword` is "abcd1234", but when it's running in "regtest" mode, `rpcpassword` is simply "password". The "sections" property of a `SectionedConfig` represents those chain-specific configuration options. Not all options are allowed in all sections. For example, the chain selection options `regtest` and `testnet` are only allowed at the top of the file above the sections.
+This means that when the node is running on the "main" chain `rpcpassword` is "abcd1234", but when it's running in "regtest" mode, `rpcpassword` is simply "password". The "sections" property of a `SectionedConfig` represents those chain-specific configuration options. Not all options are allowed in all sections. For example, the chain selection options `regtest` and `testnet` are only allowed at the top of the file above the sections.
 
 ### readConfigFiles(filePath = DEFAULT_CONFIG_FILE_PATH)
 Reads and parses the bitcoin configuration file at `filePath` and returns an object of type `BitcoinConfig`. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. If the configuration file at `filePath` includes any additional external configuration files using the `includeconf` option, those files are read too and merged into the result. See [here](https://github.com/bitcoin/bitcoin/pull/10267/files) for more information on `includeconf`.`readConfigFiles` merges the current chain's config section into the values defined at the top of the file.
