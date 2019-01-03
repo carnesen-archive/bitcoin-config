@@ -73,7 +73,7 @@ console.log(href);
 
 The format of that "href" string is `http://<username>:<password>@<hostname>:<port>/` as defined by the [WHATWG URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) standard. In Node.js >=8, you can parse it as `new require('url').URL(href)`. In Node.js >=10, `URL` is defined globally and it's as easy as `new URL(href)`.
 
-The source code for this project is TypeScript with detailed as-specific-as-possible typings, and you'll get the most benefit from consuming it from TypeScript. The npm-published code however is ES2017 JavaScript with CommonJS modules (i.e. `require`'s not `import`s) suitable use with Node.js >=8. These examples would be almost the same in "vanilla" Node.js JavaScript, just replace `import ... from` replaced by `const ... = require`.
+This project is written in TypeScript with as-specific-as-possible typings, and you'll get the most benefit from consuming it from TypeScript. The npm-published code however is ES2017 JavaScript with CommonJS modules suitable use with Node.js >=8. These examples would be almost the same in "vanilla" Node.js, just replace `import ... from` with `const ... = require`.
 
 ## Named exports
 
@@ -89,7 +89,7 @@ An object containing specifications for all available bitcoin configuration opti
 ```
 Currently this object has 147 (!) items, and we'll endeavor to keep it up to date with each new release of Bitcoin Core. If there are missing options from older versions of the software or other implementations, please let us know by filing an issue or pull request on this project's repository on GitHub.
 
-[Source](https://github.com/carnesen/bitcoin-config/blob/master/src/options.ts)
+[See the full list here in the source code](https://github.com/carnesen/bitcoin-config/blob/master/src/options.ts).
 
 ### BitcoinConfig
 A TypeScript type derived from BITCOIN_CONFIG_OPTIONS. The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analog of the option's typeName:
@@ -117,13 +117,13 @@ rpcpassword=password
 This means that when the node is running on the "main" chain `rpcpassword` is "abcd1234", but when it's running in "regtest" mode, `rpcpassword` is simply "password". The "sections" property of a `SectionedConfig` represents those chain-specific configuration options. Not all options are allowed in all sections. For example, the chain selection options `regtest` and `testnet` are only allowed at the top of the file above the sections. Other options such as `acceptnonstdtxn` are not allowed in the "main" section. The `config` argument of `writeConfigFile` described below has type `SectionedConfig`.
 
 ### DEFAULT_CONFIG_FILE_PATH
-A platform-dependent string constant that is the absolute path of the default location for the bitcoin server software configuration file, e.g. `<homedir>/.bitcoin/bitcoin.conf` on Linux.
+A platform-dependent string constant that is the absolute path of the default location for the bitcoin server software configuration file, e.g. `~/.bitcoin/bitcoin.conf` on Linux.
 
 ### readConfigFiles(filePath = DEFAULT_CONFIG_FILE_PATH)
-Reads and parses the bitcoin configuration file at the absolute path `filePath` and returns an object of type `BitcoinConfig`. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. If the configuration file at `filePath` includes any additional external configuration files using the `includeconf` option, those files are read too and merged into the result. See [here](https://github.com/bitcoin/bitcoin/pull/10267/files) for more information on `includeconf`. After reading the provided `filePath` and its `includeconf`s, `readConfigFiles` merges the current chain's config section into the chain-independent values defined at the top of the file and returns the merged result.
+Reads and parses the bitcoin configuration file at the absolute path `filePath` and returns an object of type `BitcoinConfig`. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. If the configuration file at `filePath` includes any additional external configuration files using the `includeconf` option, those are read too and merged into the result. See [here](https://github.com/bitcoin/bitcoin/pull/10267/files) for more information on `includeconf`. After reading the provided `filePath` and its `includeconf`s, `readConfigFiles` merges the current chain's config section if there is one into the chain-independent values defined at the top of the files and returns the merged result.
 
 ### getRpcHref(config)
-Takes an object of type `BitcoinConfig` as input (specifically the properties `datadir`, `regtest`, `testnet`, `rpccookiefile`, `rpcconnect`, `rpcpassword`, `rpcuser`, and `rpcport`) and returns a [URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) "href" string that can be used to connect to bitcoind's http remote procedure call (RPC) interface. The logic in this function is meant to reproduce as closely as possible that of the bitcoin-cli RPC client that ships with the bitcoin server software. Among other things, if the config object does not contain an `rpcpassword`, that means that "cookie-based" authentication is enabled. In that case `getRpcHref` reads the username and password from the `rpccookiefile` file written on startup in `datadir`.
+Takes an object of type `BitcoinConfig` as input (specifically `datadir`, `regtest`, `testnet`, `rpccookiefile`, `rpcconnect`, `rpcpassword`, `rpcuser`, and `rpcport`) and returns a [URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) "href" string that can be used to connect to bitcoind's http remote procedure call (RPC) interface. The logic in this function is meant to reproduce as closely as possible that of the bitcoin-cli client that ships with the bitcoin server software. Among other things, if the config object does not contain an `rpcpassword`, that means that "cookie-based" authentication is enabled. In that case `getRpcHref` reads the username and password from the `rpccookiefile` file written to `datadir` on startup.
 
 ### writeConfigFile(filePath, config)
 Writes to absolute path `filePath` a `SectionedConfig` object, `config`. As shown in the [usage](#Usage) section above, the serialized configuration written to disk contains the appropriate `name=value` pairs as well as descriptions of the options meanings. An option included in `config` with value `undefined` is serialized as a comment `#name=`. The return value of `writeConfigFile` is the serialized configuration string. This function is idempotent in the sense that if an existing file at `filePath` has contents identical to what it's about to write, it does not re-write the file. If the file exists and its contents have changed, it moves the old file to `${filePath}.bak` before writing the new one.
