@@ -1,4 +1,4 @@
-# bitcoin-config [![Build Status](https://travis-ci.com/carnesen/bitcoin-config.svg?branch=master)](https://travis-ci.com/carnesen/bitcoin-config)
+# @carnesen/bitcoin-config [![Build Status](https://travis-ci.com/carnesen/bitcoin-config.svg?branch=master)](https://travis-ci.com/carnesen/bitcoin-config)
 
 Constants, utilities, and TypeScript types for bitcoin server software configuration with Node.js.
 
@@ -92,7 +92,7 @@ Currently this object has 147 (!) items, and we'll endeavor to keep it up to dat
 [See the full list here in the source code](https://github.com/carnesen/bitcoin-config/blob/master/src/options.ts).
 
 ### BitcoinConfig
-A TypeScript type derived from BITCOIN_CONFIG_OPTIONS. The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analog of the option's typeName:
+A TypeScript type derived from `BITCOIN_CONFIG_OPTIONS`. The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames, e.g.:
 
 ```ts
 type BitcoinConfig = {
