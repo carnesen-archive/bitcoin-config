@@ -81,21 +81,21 @@ describe(writeConfigFile.name, () => {
 
   it('writes option description of defined values as comments', () => {
     const fileContents = writeConfigFile(tempy.file(), { rpcauth: ['foo', 'bar'] });
-    for (const line of BITCOIN_CONFIG_OPTIONS.rpcauth.description) {
+    for (const line of BITCOIN_CONFIG_OPTIONS.rpcauth.description.split('\n')) {
       expect(fileContents.includes(`# ${line}`)).toBe(true);
     }
   });
 
   it('writes option description of explicitly undefined values as comments', () => {
     const fileContents = writeConfigFile(tempy.file(), { rpcuser: undefined });
-    for (const line of BITCOIN_CONFIG_OPTIONS.rpcuser.description) {
+    for (const line of BITCOIN_CONFIG_OPTIONS.rpcuser.description.split('\n')) {
       expect(fileContents.includes(`# ${line}`)).toBe(true);
     }
   });
 
   it('does not write option description of implicitly undefined values as comments', () => {
     const fileContents = writeConfigFile(tempy.file(), { rpcuser: undefined });
-    for (const line of BITCOIN_CONFIG_OPTIONS.rpcpassword.description) {
+    for (const line of BITCOIN_CONFIG_OPTIONS.rpcpassword.description.split('\n')) {
       expect(fileContents.includes(`# ${line}`)).toBe(false);
     }
   });

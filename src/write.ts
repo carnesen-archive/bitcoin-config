@@ -31,7 +31,7 @@ function serializeBitcoinConfig(config: BitcoinConfig) {
 
   for (const [optionName, optionValue] of Object.entries(config)) {
     const option = findOption(optionName);
-    strings.push(...option.description.map(item => `# ${item}`));
+    strings.push(...option.description.split('\n').map(item => `# ${item}`));
     strings.push(serializeOption(optionName, optionValue));
     strings.push('');
   }

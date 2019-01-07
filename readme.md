@@ -83,7 +83,7 @@ An object containing specifications for all available bitcoin configuration opti
 {
   longName: 'rpc user',
   typeName: 'string',
-  description: ['Specify username for RPC http basic authentication'],
+  description: 'Specify username for RPC http basic authentication',
   defaultValue: '',
 }
 ```
