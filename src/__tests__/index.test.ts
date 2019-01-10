@@ -4,9 +4,11 @@ import {
   BitcoinConfig,
   SectionedConfig,
   getRpcHref,
+  DEFAULT_CONFIG_FILE_PATH,
+  DEFAULT_CONFIG_FILE_NAME,
+  getDefaultConfig,
 } from '..';
 import * as tempy from 'tempy';
-import { getDefaultConfig } from '../default';
 import { mergeUpActiveSectionConfig } from '../merge';
 
 describe('index', () => {
@@ -23,6 +25,18 @@ describe('index', () => {
   it('exports a function named `getRpcHref`', () => {
     expect(typeof getRpcHref).toBe('function');
     expect(getRpcHref.name).toBe('getRpcHref');
+  });
+
+  it('exports string constant DEFAULT_CONFIG_FILE_PATH', () => {
+    expect(typeof DEFAULT_CONFIG_FILE_PATH).toBe('string');
+    // $ExpectType string
+    DEFAULT_CONFIG_FILE_PATH;
+  });
+
+  it('exports string literal constant DEFAULT_CONFIG_FILE_NAME', () => {
+    expect(typeof DEFAULT_CONFIG_FILE_NAME).toBe('string');
+    // $ExpectType "bitcoin.conf"
+    DEFAULT_CONFIG_FILE_NAME;
   });
 
   it('exports types `BitcoinConfig` and `SectionedConfig`', () => {

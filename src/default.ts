@@ -22,7 +22,12 @@ export function getDefaultDatadir(p = platform()) {
   }
 }
 
-export const DEFAULT_CONFIG_FILE_PATH = join(getDefaultDatadir(), 'bitcoin.conf');
+export const DEFAULT_CONFIG_FILE_NAME = 'bitcoin.conf';
+
+export const DEFAULT_CONFIG_FILE_PATH = join(
+  getDefaultDatadir(),
+  DEFAULT_CONFIG_FILE_NAME,
+);
 
 type OptionName = keyof typeof BITCOIN_CONFIG_OPTIONS;
 

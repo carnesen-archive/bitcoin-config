@@ -1,11 +1,5 @@
 {
   "extends": [
     "@carnesen/tslint-config/nodejs/tslint.json"
-  ],
-  "rulesDirectory": [
-    "dtslint/bin/rules/expectRule.js"
-  ],
-  "rules": {
-    "expect": true
-  }
+  ]
 }

@@ -3,8 +3,12 @@ import { ChainName, TypeName } from './names';
 export type Value<T extends TypeName> = T extends 'string'
   ? string
   : T extends 'boolean'
-    ? boolean
-    : T extends 'number' ? number : T extends 'string[]' ? string[] : never;
+  ? boolean
+  : T extends 'number'
+  ? number
+  : T extends 'string[]'
+  ? string[]
+  : never;
 
 export type NotAllowedIn = { [K in ChainName]?: true };
 

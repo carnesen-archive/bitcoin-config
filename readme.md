@@ -7,6 +7,7 @@ Constants, utilities, and TypeScript types for bitcoin server software configura
 ```
 $ npm install @carnesen/bitcoin-config
 ```
+The package includes runtime JavaScript files suitable for Node.js >=8 as well as the corresponding TypeScript type declarations.
 
 ## Usage
 
