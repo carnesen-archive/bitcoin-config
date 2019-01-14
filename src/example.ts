@@ -3,7 +3,8 @@ import {
   writeConfigFile,
   getRpcHref,
   SectionedConfig,
-  DEFAULT_CONFIG_FILE_PATH,
+  DEFAULT_CONFIG_FILE_NAME,
+  toAbsolute,
 } from '.';
 
 const sectionedConfig: SectionedConfig = {
@@ -17,7 +18,10 @@ const sectionedConfig: SectionedConfig = {
   },
 };
 
-const fileContents = writeConfigFile(DEFAULT_CONFIG_FILE_PATH, sectionedConfig);
+const fileContents = writeConfigFile(
+  toAbsolute(DEFAULT_CONFIG_FILE_NAME),
+  sectionedConfig,
+);
 console.log(fileContents);
 /*
 # This file was written using writeConfigFile from @carnesen/bitcoin-config

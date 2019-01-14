@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'fs';
 import { dirname } from 'path';
 
-import { DEFAULT_CONFIG_FILE_PATH } from './default';
+import { DEFAULT_CONFIG_FILE_NAME } from './constants';
 import { parseConfigFileContents } from './parse';
 import { toAbsolute, checkIsAbsolute } from './util';
 import { SectionedConfig, BitcoinConfig } from './config';
@@ -12,30 +12,28 @@ function readOneConfigFile(filePath: string) {
   return parseConfigFileContents(fileContents);
 }
 
+const DEFAULT_FILE_PATH = toAbsolute(DEFAULT_CONFIG_FILE_NAME);
+
 export function readConfigFiles(filePath?: string): BitcoinConfig {
   if (filePath) {
     checkIsAbsolute(filePath);
   }
   let config: SectionedConfig = {};
   try {
-    config = readOneConfigFile(filePath || DEFAULT_CONFIG_FILE_PATH);
+    config = readOneConfigFile(filePath || DEFAULT_FILE_PATH);
   } catch (ex) {
     // Throw on:
     //   any error that's not "file not found"
     //   "file not found" && filePath has been passed
     //   "file not found" && filePath has not been passed && default path's directory does not exist
-    if (
-      ex.code !== 'ENOENT' ||
-      filePath ||
-      !existsSync(dirname(DEFAULT_CONFIG_FILE_PATH))
-    ) {
+    if (ex.code !== 'ENOENT' || filePath || !existsSync(dirname(DEFAULT_FILE_PATH))) {
       throw ex;
     }
   }
   const { includeconf, datadir } = mergeUpActiveSectionConfig(config);
   if (includeconf) {
     for (const item of includeconf) {
-      const includedFilePath = toAbsolute(item, { datadir });
+      const includedFilePath = toAbsolute(item, datadir);
       const includedConfig = readOneConfigFile(includedFilePath);
       config = mergeSectionedConfigs(config, includedConfig);
     }

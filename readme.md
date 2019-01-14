@@ -12,9 +12,11 @@ The package includes runtime JavaScript files suitable for Node.js >=8 as well a
 ## Usage
 
 ```ts
-import { writeConfigFile, DEFAULT_CONFIG_FILE_PATH } from '@carnesen/bitcoin-config';
+import { writeConfigFile, toAbsolute } from '@carnesen/bitcoin-config';
 
-writeConfigFile(DEFAULT_CONFIG_FILE_PATH, {
+const configFilePath = toAbsolute('bitcoin.conf');
+
+writeConfigFile(configFilePath, {
   regtest: true,
   daemon: true,
   rpcconnect: '1.2.3.4',
@@ -26,7 +28,7 @@ writeConfigFile(DEFAULT_CONFIG_FILE_PATH, {
 });
 ```
 
-Now the file at `DEFAULT_CONFIG_FILE_PATH` (the platform-dependent location where bitcoin looks for its config file, e.g. `~/.bitcoin/bitcoin.conf` on Linux) has contents:
+Now the file at `configFilePath` (the platform-dependent location where bitcoin looks for its config file, e.g. `~/.bitcoin/bitcoin.conf` on Linux) has contents:
 
 ```ini
 # This file was written using writeConfigFile from @carnesen/bitcoin-config
@@ -74,9 +76,8 @@ console.log(href);
 
 The format of that "href" string is `http://<username>:<password>@<hostname>:<port>/` as defined by the [WHATWG URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) standard. In Node.js >=8, you can parse it as `new require('url').URL(href)`. In Node.js >=10, `URL` is defined globally and it's as easy as `new URL(href)`.
 
-This project is written in TypeScript with as-specific-as-possible typings, and you'll get the most benefit from consuming it from TypeScript. The npm-published code however is ES2017 JavaScript with CommonJS modules suitable use with Node.js >=8. These examples would be almost the same in "vanilla" Node.js, just replace `import ... from` with `const ... = require`.
-
-## Named exports
+## API
+This project is written in TypeScript with as-specific-as-possible typings. As such you'll get the most benefit from consuming it from TypeScript. The npm-published code however is ES2017 JavaScript with CommonJS modules suitable use with Node.js >=8.
 
 ### BITCOIN_CONFIG_OPTIONS
 An object containing specifications for all available bitcoin configuration options. The object's keys are the option names (e.g. `rpcuser`) and the values are of the form:
@@ -106,7 +107,7 @@ type BitcoinConfig = {
 ```
 
 ### SectionedConfig
-A TypeScript type interface that extends `BitcoinConfig` with an additional property "sections". As of [Bitcoin Core v0.17.0](https://bitcoincore.org/en/releases/0.17.0/#configuration-sections-for-testnet-and-regtest), configuration files can have [INI](https://en.wikipedia.org/wiki/INI_file#Format) "sections", for example:
+A TypeScript interface that extends `BitcoinConfig` with an additional property "sections". As of [Bitcoin Core v0.17.0](https://bitcoincore.org/en/releases/0.17.0/#configuration-sections-for-testnet-and-regtest), configuration files can have [INI](https://en.wikipedia.org/wiki/INI_file#Format) "sections", for example:
 ```ini
 # bitcoin.conf
 rpcuser=carnesen
@@ -117,20 +118,23 @@ rpcpassword=password
 ```
 This means that when the node is running on the "main" chain `rpcpassword` is "abcd1234", but when it's running in "regtest" mode, `rpcpassword` is simply "password". The "sections" property of a `SectionedConfig` represents those chain-specific configuration options. Not all options are allowed in all sections. For example, the chain selection options `regtest` and `testnet` are only allowed at the top of the file above the sections. Other options such as `acceptnonstdtxn` are not allowed in the "main" section. The `config` argument of `writeConfigFile` described below has type `SectionedConfig`.
 
-### DEFAULT_CONFIG_FILE_PATH
-A platform-dependent string constant that is the absolute path of the default location for the bitcoin server software configuration file, e.g. `~/.bitcoin/bitcoin.conf` on Linux.
+### DEFAULT_CONFIG_FILE_NAME
+A string constant `bitcoin.conf`, the default name of the bitcoin configuration file
 
-### readConfigFiles(filePath = DEFAULT_CONFIG_FILE_PATH)
-Reads and parses the bitcoin configuration file at the absolute path `filePath` and returns an object of type `BitcoinConfig`. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. If the configuration file at `filePath` includes any additional external configuration files using the `includeconf` option, those are read too and merged into the result. See [here](https://github.com/bitcoin/bitcoin/pull/10267/files) for more information on `includeconf`. After reading the provided `filePath` and its `includeconf`s, `readConfigFiles` merges the current chain's config section if there is one into the chain-independent values defined at the top of the files and returns the merged result.
+### toAbsolute(filePath: string, datadir?: string, chainName?: "main" | "test" | "regtest")
+Returns an absolute file path string. If `filePath` is already absolute, returns `filePath`. If `filePath` is a relative path, it's assumed to be relative to `datadir`. The default value of `datadir` is platform dependent. The default path of the bitcoin configuration file is `toAbsolute(BITCOIN_CONF)`. If a `chainName` `"test"` or `"regtest"` is provided, an additional subdirectory name is appended, `testnet3` or `regtest`, respectively.
 
-### getRpcHref(config)
-Takes an object of type `BitcoinConfig` as input (specifically `datadir`, `regtest`, `testnet`, `rpccookiefile`, `rpcconnect`, `rpcpassword`, `rpcuser`, and `rpcport`) and returns a [URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) "href" string that can be used to connect to bitcoind's http remote procedure call (RPC) interface. The logic in this function is meant to reproduce as closely as possible that of the bitcoin-cli client that ships with the bitcoin server software. Among other things, if the config object does not contain an `rpcpassword`, that means that "cookie-based" authentication is enabled. In that case `getRpcHref` reads the username and password from the `rpccookiefile` file written to `datadir` on startup.
+### readConfigFiles(filePath?): BitcoinConfig
+Reads and parses the bitcoin configuration file at the absolute path `filePath` (default `DEFAULT_CONFIG_FILE_PATH`) and returns an object of type `BitcoinConfig`. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. If the configuration file at `filePath` includes any additional external configuration files using the `includeconf` option, those are read too and merged into the result. See [here](https://github.com/bitcoin/bitcoin/pull/10267/files) for more information on `includeconf`. After reading the provided `filePath` and its `includeconf`s, `readConfigFiles` merges the current chain's config section if there is one into the chain-independent values defined at the top of the files and returns the merged result.
 
-### writeConfigFile(filePath, config)
-Writes to absolute path `filePath` a `SectionedConfig` object, `config`. As shown in the [usage](#Usage) section above, the serialized configuration written to disk contains the appropriate `name=value` pairs as well as descriptions of the options meanings. An option included in `config` with value `undefined` is serialized as a comment `#name=`. The return value of `writeConfigFile` is the serialized configuration string. This function is idempotent in the sense that if an existing file at `filePath` has contents identical to what it's about to write, it does not re-write the file. If the file exists and its contents have changed, it moves the old file to `${filePath}.bak` before writing the new one.
+### getRpcHref(config?: BitcoinConfig): string
+Returns a [URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) "href" string that can be used to connect to bitcoind's http remote procedure call (RPC) interface. The logic in this function is meant to reproduce as closely as possible that of the bitcoin-cli client that ships with the bitcoin server software. Among other things, if the config object does not contain an `rpcpassword`, that means that "cookie-based" authentication is enabled. In that case `getRpcHref` reads the username and password from the `rpccookiefile` file written to `datadir` on startup.
 
-### getDefaultConfig(chainName)
-Takes a chain name "main", "test", or "regtest" as input and returns an object containing the default configuration for that chain. The result is intelligently typed with literal-specific values. For example, the expression `getDefaultConfig('main').rpcport` has value `8332` and a [numeric literal type](https://www.typescriptlang.org/docs/handbook/advanced-types.html) `8332`.
+### writeConfigFile(filePath: string, config: SectionedConfig): string
+Serializes `config` and writes it to the absolute path `filePath`. The serialized config contains `name=value` pairs as well as their descriptions. An option included in `config` with value `undefined` is serialized as a comment `#name=`. Returns the serialized configuration string. This function is idempotent in the sense that if an existing file at `filePath` has contents identical to what it's about to write, it does not re-write the file. If the file exists and its contents have changed, it moves the old file to `${filePath}.bak` before writing the new one.
+
+### getDefaultConfig(chainName: "main" | "test" | "regtest"): DefaultConfig
+Returns an object containing the default configuration for the specified chain. The return type has literal-specific values. For example, the expression `getDefaultConfig('main').rpcport` has value `8332` and a [numeric literal type](https://www.typescriptlang.org/docs/handbook/advanced-types.html) `8332`.
 
 ## More information
 This library has over 80 unit tests with >99% coverage. [The tests](src/__tests__) make assertions not only about its runtime behavior but also about its types using [dtslint](https://github.com/Microsoft/dtslint). If you want to see more examples of how it works, that'd be a good place to start. If you encounter any bugs or have any questions or feature requests, please don't hesitate to file an issue or submit a pull request on this project's repository on GitHub. A quick note about security, this project has zero (non-dev) dependencies, and its maintainer (that's me!) is VERY security conscious, particularly so after recent npm supply-chain attacks targeting bitcoin wallets. I've enabled two-factor authentication on both my GitHub and npm accounts, and I pledge to keep maintaining this project myself for the forseeable future. Happy coding! #BUIDL

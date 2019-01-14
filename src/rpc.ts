@@ -75,10 +75,8 @@ export function getRpcHref(config: GetRpcHrefConfig = {}) {
     // cookie-based auth is enabled
     const cookieFilePath = toAbsolute(
       config.rpccookiefile || defaultConfig.rpccookiefile,
-      {
-        datadir: config.datadir,
-        chainName,
-      },
+      config.datadir,
+      chainName,
     );
     const cookieFileContents = readFileSync(cookieFilePath, { encoding: 'utf8' });
     [username, password] = cookieFileContents.split(':');

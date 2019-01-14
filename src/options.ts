@@ -1,4 +1,5 @@
 import { ChainName, TypeName } from './names';
+import { DEFAULT_DATADIR } from './constants';
 
 export type Value<T extends TypeName> = T extends 'string'
   ? string
@@ -259,7 +260,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
     description: `
       Specify a non-default location to store blockchain and other data.
       Default value is platform-dependent.`,
-    defaultValue: undefined,
+    defaultValue: DEFAULT_DATADIR,
   }),
 
   dbbatchsize: option({

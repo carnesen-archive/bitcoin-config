@@ -1,7 +1,7 @@
 import { isAbsolute, join } from 'path';
-import { getDefaultDatadir } from './default';
 import { ChainName } from './names';
 import { ChainSelectionConfig } from './config';
+import { DEFAULT_DATADIR } from './constants';
 
 export function getActiveChainName(config: ChainSelectionConfig): ChainName {
   const { regtest, testnet } = config;
@@ -36,18 +36,14 @@ export function checkIsAbsolute(filePath: string) {
   }
 }
 
-export function toAbsolute(
-  filePath: string,
-  options: { datadir?: string; chainName?: ChainName } = {},
-) {
-  const { datadir, chainName } = options;
+export function toAbsolute(filePath: string, datadir?: string, chainName?: ChainName) {
   if (isAbsolute(filePath)) {
     return filePath;
   }
   if (datadir && !isAbsolute(datadir)) {
-    throw new Error('Path "datadir" must be absolute');
+    throw new Error(`Data directory argument "${datadir}" is not an absolute path`);
   }
-  const paths = [datadir || getDefaultDatadir()];
+  const paths = [datadir || DEFAULT_DATADIR];
   switch (chainName) {
     case 'regtest':
       paths.push('regtest');

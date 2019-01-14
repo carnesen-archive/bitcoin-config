@@ -1,5 +1,4 @@
-import { join } from 'path';
-import { platform, homedir } from 'os';
+import { platform } from 'os';
 import { Sections, BitcoinConfig, DefaultConfig } from './config';
 import { BITCOIN_CONFIG_OPTIONS } from './options';
 import {
@@ -10,28 +9,11 @@ import {
 } from './names';
 import { setActiveChainName } from './util';
 import { mergeUpActiveSectionConfig } from './merge';
-
-export function getDefaultDatadir(p = platform()) {
-  switch (p) {
-    case 'darwin':
-      return join(homedir(), 'Library', 'Application Support', 'Bitcoin');
-    case 'win32':
-      return join(process.env.APPDATA!, 'Bitcoin');
-    default:
-      return join(homedir(), '.bitcoin');
-  }
-}
-
-export const DEFAULT_CONFIG_FILE_NAME = 'bitcoin.conf';
-
-export const DEFAULT_CONFIG_FILE_PATH = join(
-  getDefaultDatadir(),
-  DEFAULT_CONFIG_FILE_NAME,
-);
+import { DEFAULT_DATADIR } from './constants';
 
 type OptionName = keyof typeof BITCOIN_CONFIG_OPTIONS;
 
-export function getDefaultConfig<T extends ChainName>(chainName: T, p = platform()) {
+export function getDefaultConfig<T extends ChainName>(chainName: T) {
   // For non-TypeScript users, verify that the passed chainName is actually one
   checkChainName(chainName);
 
@@ -52,7 +34,7 @@ export function getDefaultConfig<T extends ChainName>(chainName: T, p = platform
       bitcoinConfig[optionName as OptionName] = defaultValue;
     }
   }
-  bitcoinConfig.datadir = getDefaultDatadir(p);
+  bitcoinConfig.datadir = DEFAULT_DATADIR;
   const sectionedConfig = { ...bitcoinConfig, sections };
   setActiveChainName(sectionedConfig, chainName);
   const defaultConfig = mergeUpActiveSectionConfig(sectionedConfig);

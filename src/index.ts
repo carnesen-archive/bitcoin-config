@@ -1,10 +1,8 @@
 export { BITCOIN_CONFIG_OPTIONS } from './options';
 export { BitcoinConfig, SectionedConfig } from './config';
-export { getRpcHref } from './rpc';
-export {
-  getDefaultConfig,
-  DEFAULT_CONFIG_FILE_PATH,
-  DEFAULT_CONFIG_FILE_NAME,
-} from './default';
 export { readConfigFiles } from './read';
 export { writeConfigFile } from './write';
+export { getRpcHref } from './rpc';
+export { toAbsolute } from './util';
+export { getDefaultConfig } from './default';
+export { DEFAULT_CONFIG_FILE_NAME } from './constants';
