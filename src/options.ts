@@ -257,9 +257,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
   datadir: option({
     longName: 'data directory',
     typeName: 'string',
-    description: `
-      Specify a non-default location to store blockchain and other data.
-      Default value is platform-dependent.`,
+    description: 'Path of a directory for blockchain and other data',
     defaultValue: DEFAULT_DATADIR,
   }),
 
