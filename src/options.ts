@@ -233,10 +233,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
   daemon: option({
     longName: 'daemon',
     typeName: 'boolean',
-    description: `
-      By default when the node is launched via the bitcoind executable, the process runs,
-      in the foreground and outputs its logs to the terminal. When "daemon" to "1" (true),
-      bitcoind runs in the background. In both cases, the logs are also written to disk.`,
+    description: 'Spawn bitcoin as a background process',
     defaultValue: false,
   }),
 
