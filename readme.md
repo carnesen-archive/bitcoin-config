@@ -133,6 +133,9 @@ Returns a [URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) "href" s
 ### writeConfigFile(filePath: string, config: SectionedConfig): string
 Serializes `config` and writes it to the absolute path `filePath`. The serialized config contains `name=value` pairs as well as their descriptions. An option included in `config` with value `undefined` is serialized as a comment `#name=`. Returns the serialized configuration string. This function is idempotent in the sense that if an existing file at `filePath` has contents identical to what it's about to write, it does not re-write the file. If the file exists and its contents have changed, it moves the old file to `${filePath}.bak` before writing the new one.
 
+### getActiveChainName({regtest, testnet}): "main" | "test" | "regtest"
+Takes an object with `regtest` and `testnet` `boolean` properties and returns the corresponding chain name string.
+
 ### getDefaultConfig(chainName: "main" | "test" | "regtest"): DefaultConfig
 Returns an object containing the default configuration for the specified chain. The return type has literal-specific values. For example, the expression `getDefaultConfig('main').rpcport` has value `8332` and a [numeric literal type](https://www.typescriptlang.org/docs/handbook/advanced-types.html) `8332`.
 

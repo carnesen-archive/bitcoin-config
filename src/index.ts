@@ -3,6 +3,6 @@ export { BitcoinConfig, SectionedConfig } from './config';
 export { readConfigFiles } from './read';
 export { writeConfigFile } from './write';
 export { getRpcHref } from './rpc';
-export { toAbsolute } from './util';
+export { toAbsolute, getActiveChainName } from './util';
 export { getDefaultConfig } from './default';
 export { DEFAULT_CONFIG_FILE_NAME } from './constants';
