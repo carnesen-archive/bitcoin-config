@@ -1,4 +1,3 @@
-import { platform } from 'os';
 import { Sections, BitcoinConfig, DefaultConfig } from './config';
 import { BITCOIN_CONFIG_OPTIONS } from './options';
 import {

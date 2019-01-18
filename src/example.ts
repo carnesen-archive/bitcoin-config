@@ -1,7 +1,6 @@
 import {
   readConfigFiles,
   writeConfigFile,
-  getRpcHref,
   SectionedConfig,
   DEFAULT_CONFIG_FILE_NAME,
   toAbsolute,
@@ -51,7 +50,3 @@ console.log(config);
   rpcconnect: '1.2.3.4',
   rpcport: 33333 }
 */
-
-const href = getRpcHref(config);
-console.log(href);
-// http://__cookie__:53a85a5866adbebbf169a1194aadea9e8ef4e8444634d942b4a3b6a6f9d825b1@1.2.3.4:33333/

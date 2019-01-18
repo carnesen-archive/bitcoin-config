@@ -8,16 +8,16 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --project tsconfig.build.json",
     "build:clean": "rimraf lib && npm run build",
     "build:watch": "npm run build -- --watch",
-    "lint": "tslint --project .",
+    "lint": "tslint --project tsconfig.build.json",
     "lint:fix": "npm run lint -- --fix",
-    "test": "npm run lint && npm run test:unit && npm run build:clean",
+    "test": "npm run lint && npm run test:unit && npm run build",
     "test:unit": "jest src",
     "test:unit:coverage": "npm run test:unit -- --coverage",
     "test:unit:watch": "npm run test:unit -- --watch",
-    "preversion": "npm test",
+    "preversion": "npm test && npm run build:clean",
     "postversion": "npm publish"
   },
   "dependencies": {},

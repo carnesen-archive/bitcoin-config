@@ -3,7 +3,6 @@ import {
   writeConfigFile,
   BitcoinConfig,
   SectionedConfig,
-  getRpcHref,
   DEFAULT_CONFIG_FILE_NAME,
   getDefaultConfig,
 } from '..';
@@ -22,12 +21,7 @@ describe('index', () => {
     expect(writeConfigFile.name).toBe('writeConfigFile');
   });
 
-  it('exports a function named `getRpcHref`', () => {
-    expect(typeof getRpcHref).toBe('function');
-    expect(getRpcHref.name).toBe('getRpcHref');
-  });
-
-  it('exports string literal constant BITCOIN_CONF', () => {
+  it('exports string literal constant equal to bitcoin.conf', () => {
     expect(typeof DEFAULT_CONFIG_FILE_NAME).toBe('string');
     // $ExpectType "bitcoin.conf"
     DEFAULT_CONFIG_FILE_NAME;

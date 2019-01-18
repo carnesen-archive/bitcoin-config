@@ -53,7 +53,7 @@ rpcport=33333
 More likely you'll be interested in reading bitcoin configuration files. Here's how:
 
 ```ts
-import { readConfigFiles, getRpcHref } from '@carnesen/bitcoin-config';
+import { readConfigFiles } from '@carnesen/bitcoin-config';
 
 const config = readConfigFiles();
 // Reads from DEFAULT_CONFIG_FILE_PATH by default
@@ -66,16 +66,6 @@ console.log(config);
   rpcport: 33333 }
 */
 ```
-Continuing that example, you can take `config` and pass it into the `getRpcHref` utility function to get a complete "href" connection string for bitcoin's remote procedure call (RPC) interface:
-
-```ts
-const href = getRpcHref(config);
-console.log(href);
-// http://__cookie__:53a85a58f9d825b1@1.2.3.4:33333/
-```
-
-The format of that "href" string is `http://<username>:<password>@<hostname>:<port>/` as defined by the [WHATWG URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) standard. In Node.js >=8, you can parse it as `new require('url').URL(href)`. In Node.js >=10, `URL` is defined globally and it's as easy as `new URL(href)`.
-
 ## API
 This project is written in TypeScript with as-specific-as-possible typings. As such you'll get the most benefit from consuming it from TypeScript. The npm-published code however is ES2017 JavaScript with CommonJS modules suitable use with Node.js >=8.
 
@@ -126,9 +116,6 @@ Returns an absolute file path string. If `filePath` is already absolute, returns
 
 ### readConfigFiles(filePath?): BitcoinConfig
 Reads and parses the bitcoin configuration file at the absolute path `filePath` (default `DEFAULT_CONFIG_FILE_PATH`) and returns an object of type `BitcoinConfig`. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. If the configuration file at `filePath` includes any additional external configuration files using the `includeconf` option, those are read too and merged into the result. See [here](https://github.com/bitcoin/bitcoin/pull/10267/files) for more information on `includeconf`. After reading the provided `filePath` and its `includeconf`s, `readConfigFiles` merges the current chain's config section if there is one into the chain-independent values defined at the top of the files and returns the merged result.
-
-### getRpcHref(config?: BitcoinConfig): string
-Returns a [URL](https://nodejs.org/api/url.html#url_the_whatwg_url_api) "href" string that can be used to connect to bitcoind's http remote procedure call (RPC) interface. The logic in this function is meant to reproduce as closely as possible that of the bitcoin-cli client that ships with the bitcoin server software. Among other things, if the config object does not contain an `rpcpassword`, that means that "cookie-based" authentication is enabled. In that case `getRpcHref` reads the username and password from the `rpccookiefile` file written to `datadir` on startup.
 
 ### writeConfigFile(filePath: string, config: SectionedConfig): string
 Serializes `config` and writes it to the absolute path `filePath`. The serialized config contains `name=value` pairs as well as their descriptions. An option included in `config` with value `undefined` is serialized as a comment `#name=`. Returns the serialized configuration string. This function is idempotent in the sense that if an existing file at `filePath` has contents identical to what it's about to write, it does not re-write the file. If the file exists and its contents have changed, it moves the old file to `${filePath}.bak` before writing the new one.
