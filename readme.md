@@ -84,7 +84,7 @@ Currently this object has 147 (!) items, and we'll endeavor to keep it up to dat
 [See the full list here in the source code](https://github.com/carnesen/bitcoin-config/blob/master/src/options.ts).
 
 ### BitcoinConfig
-A TypeScript type derived from [`BITCOIN_CONFIG_OPTIONS`](#bitcoinconfigoptions). The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames, e.g.:
+A TypeScript type derived from [`BITCOIN_CONFIG_OPTIONS`](#bitcoin_config_options). The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames, e.g.:
 
 ```ts
 type BitcoinConfig = {
