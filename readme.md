@@ -84,7 +84,7 @@ Currently this object has 147 (!) items, and we'll endeavor to keep it up to dat
 [See the full list here in the source code](https://github.com/carnesen/bitcoin-config/blob/master/src/options.ts).
 
 ### BitcoinConfig
-A TypeScript type derived from `BITCOIN_CONFIG_OPTIONS`. The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames, e.g.:
+A TypeScript type derived from [`BITCOIN_CONFIG_OPTIONS`](#bitcoinconfigoptions). The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames, e.g.:
 
 ```ts
 type BitcoinConfig = {
@@ -97,7 +97,7 @@ type BitcoinConfig = {
 ```
 
 ### SectionedConfig
-A TypeScript interface that extends `BitcoinConfig` with an additional property "sections". As of [Bitcoin Core v0.17.0](https://bitcoincore.org/en/releases/0.17.0/#configuration-sections-for-testnet-and-regtest), configuration files can have [INI](https://en.wikipedia.org/wiki/INI_file#Format) "sections", for example:
+A TypeScript interface that extends [`BitcoinConfig`](#bitcoinconfig) with an additional property "sections". As of [Bitcoin Core v0.17.0](https://bitcoincore.org/en/releases/0.17.0/#configuration-sections-for-testnet-and-regtest), configuration files can have [INI](https://en.wikipedia.org/wiki/INI_file#Format) "sections", for example:
 ```ini
 # bitcoin.conf
 rpcuser=carnesen
