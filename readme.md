@@ -127,7 +127,7 @@ Takes an object with `regtest` and `testnet` `boolean` properties and returns th
 Returns an object containing the default configuration for the specified chain. The return type has literal-specific values. For example, the expression `getDefaultConfig('main').rpcport` has value `8332` and a [numeric literal type](https://www.typescriptlang.org/docs/handbook/advanced-types.html) `8332`.
 
 ## More information
-This library has over 80 unit tests with >99% coverage. [The tests](src/__tests__) make assertions not only about its runtime behavior but also about its types using [dtslint](https://github.com/Microsoft/dtslint). If you want to see more examples of how it works, that'd be a good place to start. If you encounter any bugs or have any questions or feature requests, please don't hesitate to file an issue or submit a pull request on this project's repository on GitHub. A quick note about security, this project has zero (non-dev) dependencies, and its maintainer (that's me!) is VERY security conscious, particularly so after recent npm supply-chain attacks targeting bitcoin wallets. I've enabled two-factor authentication on both my GitHub and npm accounts, and I pledge to keep maintaining this project myself for the forseeable future. Happy coding! #BUIDL
+This library has over 80 unit tests with >99% coverage. [The tests](src/__tests__) make assertions not only about its runtime behavior but also about its types using [dtslint](https://github.com/Microsoft/dtslint). If you want to see more examples of how it works, that'd be a good place to start. If you encounter any bugs or have any questions or feature requests, please don't hesitate to file an issue or submit a pull request on this project's repository on GitHub.
 
 ## License
 
