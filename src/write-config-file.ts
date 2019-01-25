@@ -6,15 +6,25 @@ import { serializeConfig } from './serialize-config';
 
 export function writeConfigFile(filePath: string, sectionedConfig: SectionedConfig) {
   checkIsAbsolute(filePath);
-  const fileContents = serializeConfig(sectionedConfig);
+  const serializedConfig = serializeConfig(sectionedConfig);
+  const returnValue: {
+    changed: boolean;
+    serializedConfig: string;
+    backupFilePath?: string;
+  } = {
+    changed: false,
+    serializedConfig,
+  };
   if (existsSync(filePath)) {
-    if (fileContents === readFileSync(filePath, { encoding: 'utf8' })) {
-      return fileContents;
+    if (serializedConfig === readFileSync(filePath, { encoding: 'utf8' })) {
+      return returnValue;
     }
-    renameSync(filePath, `${filePath}.bak`);
+    returnValue.backupFilePath = `${filePath}.bak`;
+    renameSync(filePath, returnValue.backupFilePath);
   }
+  returnValue.changed = true;
   const tmpFilePath = `${filePath}.tmp`;
-  writeFileSync(tmpFilePath, fileContents);
+  writeFileSync(tmpFilePath, serializedConfig);
   renameSync(tmpFilePath, filePath);
-  return fileContents;
+  return returnValue;
 }

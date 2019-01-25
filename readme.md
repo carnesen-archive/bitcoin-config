@@ -25,9 +25,9 @@ console.log(config);
   rpcport: 33333 }
 */
 ```
-In TypeScript, the returned config object is intelligently typed, e.g. `regest` has type `boolean`.
+In TypeScript, the returned config object is intelligently typed, e.g. `regtest` has type `boolean`.
 
-Here's an example of writing the configuration file:
+Here's an example of writing a configuration file:
 ```ts
 const { writeConfigFile, toAbsolute } = require('@carnesen/bitcoin-config');
 
@@ -124,7 +124,7 @@ Reads and parses a bitcoin configuration file from disk
 #### sectionedConfig
 `SectionedConfig`. As described [above](#sectionedconfig). The return value represents the full contents of a single bitcoin configuration file.
 
-### readConfigFiles(filePath): bitcoinConfig
+### readConfigFiles(filePath?): bitcoinConfig
 Reads, parses, and merges a bitcoin configuration file together with all its [`includeconf`](https://github.com/bitcoin/bitcoin/pull/10267/files) files.
 
 #### filePath
