@@ -1,4 +1,4 @@
-import { getDefaultConfig } from '../default';
+import { getDefaultConfig } from '../get-default-config';
 
 describe(getDefaultConfig.name, () => {
   it('returns an object of type DefaultConfig with literal-specific types', () => {

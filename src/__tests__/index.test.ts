@@ -7,8 +7,7 @@ import {
   getDefaultConfig,
 } from '..';
 import * as tempy from 'tempy';
-import { mergeUpActiveSectionConfig } from '../merge';
-import {} from '../default';
+import { mergeActiveChain } from '../merge-active-chain';
 
 describe('index', () => {
   it('exports the function named `readConfigFiles`', () => {
@@ -52,6 +51,6 @@ describe('index', () => {
     const filePath = tempy.file();
     writeConfigFile(filePath, defaultConfig);
     const bitcoinConfig = readConfigFiles(filePath);
-    expect(mergeUpActiveSectionConfig(defaultConfig)).toEqual(bitcoinConfig);
+    expect(mergeActiveChain(defaultConfig)).toEqual(bitcoinConfig);
   });
 });

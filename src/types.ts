@@ -1,4 +1,8 @@
-import { BITCOIN_CONFIG_OPTIONS, Value, ChainDependentDefaultValue } from './options';
+import {
+  BITCOIN_CONFIG_OPTIONS,
+  Value,
+  ChainDependentDefaultValue,
+} from './bitcoin-config-options';
 import { ChainName, ChainSelectionOptionName } from './names';
 
 type Options = typeof BITCOIN_CONFIG_OPTIONS;

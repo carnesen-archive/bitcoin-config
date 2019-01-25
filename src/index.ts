@@ -1,7 +1,10 @@
-export { BITCOIN_CONFIG_OPTIONS } from './options';
-export { BitcoinConfig, SectionedConfig } from './config';
-export { readConfigFiles } from './read';
-export { writeConfigFile } from './write';
+export { BITCOIN_CONFIG_OPTIONS } from './bitcoin-config-options';
+export { BitcoinConfig, SectionedConfig } from './types';
+export { readConfigFile } from './read-config-file';
+export { readConfigFiles } from './read-config-files';
+export { writeConfigFile } from './write-config-file';
+export { parseConfig } from './parse-config';
+export { serializeConfig } from './serialize-config';
 export { toAbsolute, getActiveChainName } from './util';
-export { getDefaultConfig } from './default';
+export { getDefaultConfig } from './get-default-config';
 export { DEFAULT_CONFIG_FILE_NAME } from './constants';

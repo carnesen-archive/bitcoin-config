@@ -1,6 +1,6 @@
 import { isAbsolute, join } from 'path';
 import { ChainName } from './names';
-import { ChainSelectionConfig } from './config';
+import { ChainSelectionConfig } from './types';
 import { DEFAULT_DATADIR } from './constants';
 
 export function getActiveChainName(config: ChainSelectionConfig): ChainName {

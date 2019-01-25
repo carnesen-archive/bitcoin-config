@@ -2,8 +2,8 @@ import { join } from 'path';
 import * as tempy from 'tempy';
 import { readFileSync, existsSync, statSync } from 'fs';
 
-import { writeConfigFile } from '../write';
-import { BITCOIN_CONFIG_OPTIONS } from '../options';
+import { writeConfigFile } from '../write-config-file';
+import { BITCOIN_CONFIG_OPTIONS } from '../bitcoin-config-options';
 
 describe(writeConfigFile.name, () => {
   it('writes a config file at the specified location', () => {
@@ -46,7 +46,7 @@ describe(writeConfigFile.name, () => {
 
   it('writes a header comment line', () => {
     const fileContents = writeConfigFile(tempy.file(), {});
-    expect(fileContents).toMatch(/^# .* written using .* @carnesen\/bitcoin-config/);
+    expect(fileContents).toMatch(/^# .* written using @carnesen\/bitcoin-config/);
   });
 
   it('writes string option as name=value', () => {

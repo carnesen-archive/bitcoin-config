@@ -1,6 +1,6 @@
 import tempWrite = require('temp-write');
 import * as tempy from 'tempy';
-import { readConfigFiles } from '../read';
+import { readConfigFiles } from '../read-config-files';
 import { writeFileSync } from 'fs';
 
 describe(readConfigFiles.name, () => {

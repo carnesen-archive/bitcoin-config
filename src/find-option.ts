@@ -1,4 +1,4 @@
-import { BITCOIN_CONFIG_OPTIONS, NotAllowedIn } from './options';
+import { BITCOIN_CONFIG_OPTIONS, NotAllowedIn } from './bitcoin-config-options';
 import { ChainName } from './names';
 
 export function findOption(maybeOptionName: string, chainName?: ChainName) {

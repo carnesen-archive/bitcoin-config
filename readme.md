@@ -1,6 +1,6 @@
 # @carnesen/bitcoin-config [![Build Status](https://travis-ci.com/carnesen/bitcoin-config.svg?branch=master)](https://travis-ci.com/carnesen/bitcoin-config)
 
-Constants, utilities, and TypeScript types for bitcoin server software configuration with Node.js.
+A Node.js library for bitcoin server software configuration
 
 ## Install
 
@@ -11,14 +11,29 @@ The package includes runtime JavaScript files suitable for Node.js >=8 as well a
 
 ## Usage
 
+Here's an example that reads and parses the default configuration file (e.g. `~/.bitcoin/bitcoin.conf` on Linux):
+```js
+const { readConfigFiles } = require('@carnesen/bitcoin-config');
+
+const config = readConfigFiles();
+
+console.log(config);
+/*
+{ regtest: true,
+  daemon: true,
+  rpcconnect: '1.2.3.4',
+  rpcport: 33333 }
+*/
+```
+
+Here's an example of writing the configuration file:
 ```ts
-import { writeConfigFile, toAbsolute } from '@carnesen/bitcoin-config';
+const { writeConfigFile, toAbsolute } = require('@carnesen/bitcoin-config');
 
 const configFilePath = toAbsolute('bitcoin.conf');
 
 writeConfigFile(configFilePath, {
   regtest: true,
-  daemon: true,
   rpcconnect: '1.2.3.4',
   sections: {
     regtest: {
@@ -28,18 +43,13 @@ writeConfigFile(configFilePath, {
 });
 ```
 
-Now the file at `configFilePath` (the platform-dependent location where bitcoin looks for its config file, e.g. `~/.bitcoin/bitcoin.conf` on Linux) has contents:
+Now the file at `configFilePath` has contents:
 
 ```ini
-# This file was written using writeConfigFile from @carnesen/bitcoin-config
+# This is a bitcoin configuration file written using @carnesen/bitcoin-config
 
 # Run this node on its own independent test network.
 regtest=1
-
-# By default when the node is launched via the bitcoind executable, the process runs
-# in the foreground and outputs its logs to the terminal. When "daemon" to "1" (true)
-# bitcoind runs in the background. In both cases, the logs are also written to disk.
-daemon=1
 
 # Send commands to node running on <ip>
 rpcconnect=1.2.3.4
@@ -50,41 +60,14 @@ rpcconnect=1.2.3.4
 rpcport=33333
 ```
 
-More likely you'll be interested in reading bitcoin configuration files. Here's how:
-
-```ts
-import { readConfigFiles } from '@carnesen/bitcoin-config';
-
-const config = readConfigFiles();
-// Reads from DEFAULT_CONFIG_FILE_PATH by default
-
-console.log(config);
-/*
-{ regtest: true,
-  daemon: true,
-  rpcconnect: '1.2.3.4',
-  rpcport: 33333 }
-*/
-```
 ## API
-This project is written in TypeScript with as-specific-as-possible typings. As such you'll get the most benefit from consuming it from TypeScript. The npm-published code however is ES2017 JavaScript with CommonJS modules suitable use with Node.js >=8.
 
 ### BITCOIN_CONFIG_OPTIONS
-An object containing specifications for all available bitcoin configuration options. The object's keys are the option names (e.g. `rpcuser`) and the values are of the form:
-```ts
-{
-  longName: 'rpc user',
-  typeName: 'string',
-  description: 'Specify username for RPC http basic authentication',
-  defaultValue: '',
-}
-```
-Currently this object has 147 (!) items, and we'll endeavor to keep it up to date with each new release of Bitcoin Core. If there are missing options from older versions of the software or other implementations, please let us know by filing an issue or pull request on this project's repository on GitHub.
+`{ [optionName: string]: { longName, typeName, description, defaultValue }`. An object containing all available bitcoin configuration options. The object's keys are the option names (e.g. `rpcuser`) and the values describe its type etc. Currently this object has [147](https://github.com/carnesen/bitcoin-config/blob/master/src/bitcoin-config-options.ts) (!) items. If any are missing, please file an issue or submit a pull request on this project's repository on GitHub.
 
-[See the full list here in the source code](https://github.com/carnesen/bitcoin-config/blob/master/src/options.ts).
 
 ### BitcoinConfig
-A TypeScript type derived from [`BITCOIN_CONFIG_OPTIONS`](#bitcoin_config_options). The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames, e.g.:
+A TypeScript type derived from [`BITCOIN_CONFIG_OPTIONS`](#bitcoin_config_options). The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames. Effectively
 
 ```ts
 type BitcoinConfig = {
@@ -106,25 +89,76 @@ rpcpassword=abcd1234
 [regtest]
 rpcpassword=password
 ```
-This means that when the node is running on the "main" chain `rpcpassword` is "abcd1234", but when it's running in "regtest" mode, `rpcpassword` is simply "password". The "sections" property of a `SectionedConfig` represents those chain-specific configuration options. Not all options are allowed in all sections. For example, the chain selection options `regtest` and `testnet` are only allowed at the top of the file above the sections. Other options such as `acceptnonstdtxn` are not allowed in the "main" section. The `config` argument of `writeConfigFile` described below has type `SectionedConfig`.
+This means that when the node is running on the "main" chain `rpcpassword` is "abcd1234", but when it's running in "regtest" mode, `rpcpassword` is simply "password". The `sections` property of a `SectionedConfig` represents those chain-specific configuration options. Not all options are allowed in all sections. For example, the chain selection options `regtest` and `testnet` are only allowed at the top of the file above the sections. Other options such as `acceptnonstdtxn` are not allowed in the "main" section. The `config` argument of `writeConfigFile` described below has type `SectionedConfig`.
 
 ### DEFAULT_CONFIG_FILE_NAME
-A string constant `bitcoin.conf`, the default name of the bitcoin configuration file
+`'bitcoin.conf'`, the default name of the bitcoin configuration file
 
-### toAbsolute(filePath: string, datadir?: string, chainName?: "main" | "test" | "regtest")
-Returns an absolute file path string. If `filePath` is already absolute, returns `filePath`. If `filePath` is a relative path, it's assumed to be relative to `datadir`. The default value of `datadir` is platform dependent. The default path of the bitcoin configuration file is `toAbsolute(BITCOIN_CONF)`. If a `chainName` `"test"` or `"regtest"` is provided, an additional subdirectory name is appended, `testnet3` or `regtest`, respectively.
+### toAbsolute(filePath, datadir?, chainName?): absoluteFilePath
+Converts a datadir-relative file path into an absolute one.
 
-### readConfigFiles(filePath?): BitcoinConfig
-Reads and parses the bitcoin configuration file at the absolute path `filePath` (default `DEFAULT_CONFIG_FILE_PATH`) and returns an object of type `BitcoinConfig`. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. If the configuration file at `filePath` includes any additional external configuration files using the `includeconf` option, those are read too and merged into the result. See [here](https://github.com/bitcoin/bitcoin/pull/10267/files) for more information on `includeconf`. After reading the provided `filePath` and its `includeconf`s, `readConfigFiles` merges the current chain's config section if there is one into the chain-independent values defined at the top of the files and returns the merged result.
+#### filePath 
+`string`. An absolute path (e.g. `'/home/carnesen/.bitcoin/bitcoin.conf'`) or a relative one (e.g. `'bitcoin.conf'`.
 
-### writeConfigFile(filePath: string, config: SectionedConfig): string
-Serializes `config` and writes it to the absolute path `filePath`. The serialized config contains `name=value` pairs as well as their descriptions. An option included in `config` with value `undefined` is serialized as a comment `#name=`. Returns the serialized configuration string. This function is idempotent in the sense that if an existing file at `filePath` has contents identical to what it's about to write, it does not re-write the file. If the file exists and its contents have changed, it moves the old file to `${filePath}.bak` before writing the new one.
+#### datadir
+`string` (optional). Absolute path of a bitcoin data directory. Default value is platform dependent, e.g. `~/.bitcoin` on Linux.
 
-### getActiveChainName({regtest, testnet}): "main" | "test" | "regtest"
-Takes an object with `regtest` and `testnet` `boolean` properties and returns the corresponding chain name string.
+#### chainName
+`'main' | 'regtest' | 'test'` (optional). If provided, `''`, `'/regtest'`, or `'/testnet3'`, respectively, is appended to the absolute path. Blocks and other data is written to these subdirectories.
 
-### getDefaultConfig(chainName: "main" | "test" | "regtest"): DefaultConfig
-Returns an object containing the default configuration for the specified chain. The return type has literal-specific values. For example, the expression `getDefaultConfig('main').rpcport` has value `8332` and a [numeric literal type](https://www.typescriptlang.org/docs/handbook/advanced-types.html) `8332`.
+#### absoluteFilePath
+`string`. An absolute file path string.
+
+### readConfigFile(filePath?): sectionedConfig
+Reads and parses a bitcoin configuration file from disk
+
+#### filePath
+`string` (optional). Absolute path of a bitcoin configuration file. Default value is platform dependent, e.g. `~/.bitcoin/bitcoin.conf` on Linux.
+
+#### sectionedConfig
+`SectionedConfig`. As described [above](#sectionedconfig). The return value represents the full contents of a single bitcoin configuration file.
+
+### readConfigFiles(filePath): bitcoinConfig
+Reads, parses, and merges a bitcoin configuration file together with all its [`includeconf`](https://github.com/bitcoin/bitcoin/pull/10267/files) files.
+
+#### filePath
+`string` (optional). Absolute path of a bitcoin configuration file. Default value is platform dependent, e.g. `~/.bitcoin/bitcoin.conf` on Linux.
+
+#### bitcoinConfig
+[`BitcoinConfig`](#bitcoinconfig). Whereas `readConfigFile` returns the full contents of a single file, `readConfigFiles` returns the merged content of (potentially) several files. If the configuration file at `filePath` specifies any `includeconf`s, those are read and merged into the original. What makes the result a `BitcoinConfig` not a `SectionedConfig` is that if there is a configuration section for the currently-active chain, that gets merged into the any-chain values from the top part of the config files above the sections. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. So you're getting as a return value the effective "active" configuration.
+
+### writeConfigFile(filePath, sectionedConfig): {changed, serializedConfig, backupFilePath}
+Serializes a configuration object and writes it to disk
+
+#### filePath
+`string`. Absolute path of a bitcoin configuration file.
+
+#### sectionedConfig
+`SectionedConfig`. A configuration object to serialize and write to disk
+
+#### changed
+`boolean`. The `writeConfigFile` function is idempotent in the sense that if an existing file at `filePath` has contents identical to what it's about to write, it does not re-write the file. Instead it just returns `changed` as `false` and leaves the file alone.
+
+#### serializedConfig
+`string`. The serialized representation of the passed configuration object
+
+#### backupFilePath
+`string`. When `writeConfigFile` writes a file to disk, it first move an existing file at that location to `${filePath}.bak`. `backupFilePath` is the absolute path of the backup file.
+
+### getActiveChainName(bitcoinConfig): chainName
+Extracts the name of the currently-active chain from a bitcoin configuration
+#### bitcoinConfig
+`BitcoinConfig`. A bitcoin configuration object.
+#### chainName
+`'main' | 'test' | 'regtest'`
+
+### getDefaultConfig(chainName): defaultConfig
+Returns an object containing the default configuration for the specified chain
+#### chainName
+`'main' | 'test' | 'regtest'`
+
+#### defaultConfig
+`DefaultConfig`. A [literal-specific](https://www.typescriptlang.org/docs/handbook/advanced-types.html) object type with default values for the specified chain. For example, the expression `getDefaultConfig('main').rpcport` has value `8332` and a numeric literal type `8332`.
 
 ## More information
 This library has over 80 unit tests with >99% coverage. [The tests](src/__tests__) make assertions not only about its runtime behavior but also about its types using [dtslint](https://github.com/Microsoft/dtslint). If you want to see more examples of how it works, that'd be a good place to start. If you encounter any bugs or have any questions or feature requests, please don't hesitate to file an issue or submit a pull request on this project's repository on GitHub.
