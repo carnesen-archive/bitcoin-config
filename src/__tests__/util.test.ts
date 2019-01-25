@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join, basename, dirname } from 'path';
 import { toAbsolute } from '../util';
 import { DEFAULT_DATADIR } from '../constants';
 
@@ -22,6 +22,18 @@ describe(toAbsolute.name, () => {
   it('joins a relative path to the default "datadir" if none is provided', () => {
     const filePath = 'baz';
     expect(toAbsolute(filePath)).toBe(join(DEFAULT_DATADIR, filePath));
+  });
+
+  it('appends "regtest3" if chainName is "regtest"', () => {
+    const filePath = 'baz';
+    const absoluteFilePath = toAbsolute(filePath, undefined, 'regtest');
+    expect(basename(dirname(absoluteFilePath))).toBe('regtest');
+  });
+
+  it('appends "testnet" if chainName is "test"', () => {
+    const filePath = 'baz';
+    const absoluteFilePath = toAbsolute(filePath, undefined, 'test');
+    expect(basename(dirname(absoluteFilePath))).toBe('testnet3');
   });
 
   it('throws "not an absolute path" if datadir arg is not an absolute path', () => {
