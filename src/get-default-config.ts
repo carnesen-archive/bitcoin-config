@@ -7,7 +7,7 @@ import {
   castToChainName as checkChainName,
 } from './names';
 import { setActiveChainName } from './util';
-import { mergeActiveChain } from './merge-active-chain';
+import { mergeSection } from './merge-section';
 import { DEFAULT_DATADIR } from './constants';
 
 type OptionName = keyof typeof BITCOIN_CONFIG_OPTIONS;
@@ -36,7 +36,7 @@ export function getDefaultConfig<T extends ChainName>(chainName: T) {
   bitcoinConfig.datadir = DEFAULT_DATADIR;
   const sectionedConfig = { ...bitcoinConfig, sections };
   setActiveChainName(sectionedConfig, chainName);
-  const defaultConfig = mergeActiveChain(sectionedConfig);
+  const defaultConfig = mergeSection(sectionedConfig);
   for (const optionName of CHAIN_SELECTION_OPTION_NAMES) {
     delete defaultConfig[optionName];
   }

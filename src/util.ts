@@ -3,7 +3,7 @@ import { ChainName } from './names';
 import { ChainSelectionConfig } from './types';
 import { DEFAULT_DATADIR } from './constants';
 
-export function getActiveChainName(config: ChainSelectionConfig): ChainName {
+export function getChainName(config: ChainSelectionConfig): ChainName {
   const { regtest, testnet } = config;
   if (regtest && testnet) {
     throw new Error('regtest and testnet cannot both be set to true');

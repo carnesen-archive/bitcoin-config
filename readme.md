@@ -25,6 +25,7 @@ console.log(config);
   rpcport: 33333 }
 */
 ```
+In TypeScript, the returned config object is intelligently typed, e.g. `regest` has type `boolean`.
 
 Here's an example of writing the configuration file:
 ```ts
@@ -32,7 +33,7 @@ const { writeConfigFile, toAbsolute } = require('@carnesen/bitcoin-config');
 
 const configFilePath = toAbsolute('bitcoin.conf');
 
-writeConfigFile(configFilePath, {
+const { changed } = writeConfigFile(configFilePath, {
   regtest: true,
   rpcconnect: '1.2.3.4',
   sections: {
@@ -41,6 +42,12 @@ writeConfigFile(configFilePath, {
     },
   },
 });
+
+const message = changed
+  ? `Wrote "${configFilePath}"`
+  : `File "${configFilePath}" has not changed`;
+
+console.log(message);
 ```
 
 Now the file at `configFilePath` has contents:
@@ -63,11 +70,10 @@ rpcport=33333
 ## API
 
 ### BITCOIN_CONFIG_OPTIONS
-`{ [optionName: string]: { longName, typeName, description, defaultValue }`. An object containing all available bitcoin configuration options. The object's keys are the option names (e.g. `rpcuser`) and the values describe its type etc. Currently this object has [147](https://github.com/carnesen/bitcoin-config/blob/master/src/bitcoin-config-options.ts) (!) items. If any are missing, please file an issue or submit a pull request on this project's repository on GitHub.
-
+`{[optionName: string]: {longName, typeName, description, defaultValue}}`. An object containing all available bitcoin configuration options. The keys are the option names (e.g. `rpcuser`) and the values are objects containing `typeName` etc. Currently there are [147 items](https://github.com/carnesen/bitcoin-config/blob/master/src/bitcoin-config-options.ts) in `BITCOIN_CONFIG_OPTIONS`. If an option is missing, please file an issue or submit a pull request on this project's repository on GitHub.
 
 ### BitcoinConfig
-A TypeScript type derived from [`BITCOIN_CONFIG_OPTIONS`](#bitcoin_config_options). The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames. Effectively
+A TypeScript type derived from [`BITCOIN_CONFIG_OPTIONS`](#bitcoin_config_options). The type's keys are the option names (e.g. `rpcuser`) and the values are TypeScript analogs of the typeNames. Effectively,
 
 ```ts
 type BitcoinConfig = {
@@ -80,7 +86,7 @@ type BitcoinConfig = {
 ```
 
 ### SectionedConfig
-A TypeScript interface that extends [`BitcoinConfig`](#bitcoinconfig) with an additional property "sections". As of [Bitcoin Core v0.17.0](https://bitcoincore.org/en/releases/0.17.0/#configuration-sections-for-testnet-and-regtest), configuration files can have [INI](https://en.wikipedia.org/wiki/INI_file#Format) "sections", for example:
+A TypeScript interface that extends [`BitcoinConfig`](#bitcoinconfig) with an additional property `sections`. As of [Bitcoin Core v0.17.0](https://bitcoincore.org/en/releases/0.17.0/#configuration-sections-for-testnet-and-regtest), configuration files can have [INI](https://en.wikipedia.org/wiki/INI_file#Format) "sections", for example:
 ```ini
 # bitcoin.conf
 rpcuser=carnesen
@@ -145,10 +151,12 @@ Serializes a configuration object and writes it to disk
 #### backupFilePath
 `string`. When `writeConfigFile` writes a file to disk, it first move an existing file at that location to `${filePath}.bak`. `backupFilePath` is the absolute path of the backup file.
 
-### getActiveChainName(bitcoinConfig): chainName
+### getChainName(bitcoinConfig): chainName
 Extracts the name of the currently-active chain from a bitcoin configuration
+
 #### bitcoinConfig
 `BitcoinConfig`. A bitcoin configuration object.
+
 #### chainName
 `'main' | 'test' | 'regtest'`
 
@@ -159,6 +167,18 @@ Returns an object containing the default configuration for the specified chain
 
 #### defaultConfig
 `DefaultConfig`. A [literal-specific](https://www.typescriptlang.org/docs/handbook/advanced-types.html) object type with default values for the specified chain. For example, the expression `getDefaultConfig('main').rpcport` has value `8332` and a numeric literal type `8332`.
+
+### parseConfig(serializedConfig): sectionedConfig
+#### serializedConfig
+`string`. A serialized `SectionConfig`.
+#### sectionedConfig
+`SectionedConfig`. A configuration object parsed from `serializedConfig`.
+
+### serializeConfig(sectionedConfig): serializedConfig
+#### sectionedConfig
+`SectionedConfig`. A configuration object.
+#### serializedConfig
+`string`. An INI-serialized version of `sectionedConfig`.
 
 ## More information
 This library has over 80 unit tests with >99% coverage. [The tests](src/__tests__) make assertions not only about its runtime behavior but also about its types using [dtslint](https://github.com/Microsoft/dtslint). If you want to see more examples of how it works, that'd be a good place to start. If you encounter any bugs or have any questions or feature requests, please don't hesitate to file an issue or submit a pull request on this project's repository on GitHub.

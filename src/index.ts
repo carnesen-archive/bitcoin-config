@@ -5,6 +5,6 @@ export { readConfigFiles } from './read-config-files';
 export { writeConfigFile } from './write-config-file';
 export { parseConfig } from './parse-config';
 export { serializeConfig } from './serialize-config';
-export { toAbsolute, getActiveChainName } from './util';
+export { toAbsolute, getChainName } from './util';
 export { getDefaultConfig } from './get-default-config';
 export { DEFAULT_CONFIG_FILE_NAME } from './constants';
