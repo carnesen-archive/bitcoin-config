@@ -56,14 +56,14 @@ export const BITCOIN_CONFIG_OPTIONS = {
   addresstype: option({
     longName: 'address type',
     typeName: 'string',
-    description: 'p2sh-segwit, legacy, or bech32',
+    description: "'p2sh-segwit' | 'legacy' | 'bech32'",
     defaultValue: 'p2sh-segwit',
   }),
 
   addnode: option({
     longName: 'add node',
     typeName: 'string[]',
-    description: 'Add a node IP address to attempt to connect to',
+    description: 'Add IP address of node to connect to',
     onlyAppliesToMain: true,
     defaultValue: undefined,
   }),
@@ -71,7 +71,7 @@ export const BITCOIN_CONFIG_OPTIONS = {
   addrmantest: option({
     longName: 'address manager test',
     typeName: 'boolean',
-    description: 'allows you to test address relay locally',
+    description: 'Allow local address manager relay tests',
     defaultValue: undefined,
   }),
 
