@@ -1,7 +1,7 @@
 {
   "name": "@carnesen/bitcoin-config",
   "description": "A Node.js library for bitcoin server software configuration",
-  "version": "0.0.0-4",
+  "version": "0.0.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "engines": {
