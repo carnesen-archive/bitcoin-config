@@ -1,11 +1,13 @@
 import { mergeSection } from './merge-section';
 import { mergeSectionedConfigs } from './merge-sectioned-configs';
 import { readConfigFile } from './read-config-file';
-import { BitcoinConfig } from './types';
 import { toAbsolute } from './util';
+import { DEFAULT_CONFIG_FILE_NAME } from './constants';
 
-export function readConfigFiles(filePath?: string): BitcoinConfig {
-  let config = readConfigFile(filePath);
+const DEFAULT_FILE_PATH = toAbsolute(DEFAULT_CONFIG_FILE_NAME);
+
+export function readConfigFiles(filePath?: string) {
+  let config = readConfigFile(filePath || DEFAULT_FILE_PATH);
   const { includeconf, datadir } = mergeSection(config);
   if (includeconf) {
     for (const item of includeconf) {

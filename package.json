@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "build:clean": "rimraf lib && npm run build",
-    "build:watch": "npm run build -- --watch",
+    "build:watch": "tsc --watch",
     "lint": "tslint --project tsconfig.build.json",
     "lint:fix": "npm run lint -- --fix",
     "test": "npm run lint && npm run test:unit && npm run build",
@@ -21,7 +21,10 @@
     "preversion": "npm test && npm run build:clean",
     "postversion": "npm publish"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/mkdirp": "0.5.2",
+    "mkdirp": "0.5.1"
+  },
   "devDependencies": {
     "@carnesen/tsconfig": "0.1.0",
     "@carnesen/tslint-config": "0.1.2",

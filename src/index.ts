@@ -3,6 +3,7 @@ export { BitcoinConfig, SectionedConfig } from './types';
 export { readConfigFile } from './read-config-file';
 export { readConfigFiles } from './read-config-files';
 export { writeConfigFile } from './write-config-file';
+export { updateConfigFile } from './update-config-file';
 export { parseConfig } from './parse-config';
 export { serializeConfig } from './serialize-config';
 export { toAbsolute, getChainName } from './util';

@@ -3,10 +3,12 @@ import { writeFileSync, existsSync, renameSync, readFileSync } from 'fs';
 import { SectionedConfig } from './types';
 import { checkIsAbsolute } from './util';
 import { serializeConfig } from './serialize-config';
+import mkdirp = require('mkdirp');
+import { dirname } from 'path';
 
-export function writeConfigFile(filePath: string, sectionedConfig: SectionedConfig) {
+export function writeConfigFile(filePath: string, config: SectionedConfig) {
   checkIsAbsolute(filePath);
-  const serializedConfig = serializeConfig(sectionedConfig);
+  const serializedConfig = serializeConfig(config);
   const returnValue: {
     changed: boolean;
     serializedConfig: string;
@@ -23,6 +25,7 @@ export function writeConfigFile(filePath: string, sectionedConfig: SectionedConf
     renameSync(filePath, returnValue.backupFilePath);
   }
   returnValue.changed = true;
+  mkdirp.sync(dirname(filePath));
   const tmpFilePath = `${filePath}.tmp`;
   writeFileSync(tmpFilePath, serializedConfig);
   renameSync(tmpFilePath, filePath);

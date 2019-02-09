@@ -1,4 +1,3 @@
-import { join } from 'path';
 import * as tempy from 'tempy';
 import { readFileSync, existsSync, statSync } from 'fs';
 
@@ -16,12 +15,6 @@ describe(writeConfigFile.name, () => {
     const { serializedConfig } = writeConfigFile(filePath, { rpcuser: 'foo' });
     const fileContents = readFileSync(filePath, { encoding: 'utf8' });
     expect(serializedConfig).toBe(fileContents);
-  });
-
-  it('throws "ENOENT" if the directory of the specified file path does not exist', () => {
-    const filePath = join(tempy.file(), 'bitcoin.conf');
-    // ^^ tempy.file() is basically just tempy.directory() without the mkdir
-    expect(() => writeConfigFile(filePath, {})).toThrow('ENOENT');
   });
 
   it('creates a backup of an existing file first if one exists and in that case returns backupFilePath', () => {
