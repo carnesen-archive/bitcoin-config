@@ -67,6 +67,17 @@ rpcconnect=1.2.3.4
 rpcport=33333
 ```
 
+Finally, continuing the previous example, suppose now we want to update the configuration file:
+```js
+const { updateConfigFile } = require('@carnesen/bitcoin-config');
+
+updateConfigFile(configFilePath, {
+  daemon: true,
+  rpcconnect: null,
+});
+```
+This update means "set the `daemon` property to `true` and unset (delete) the `rpcconnect` property".
+
 ## API
 
 ### BITCOIN_CONFIG_OPTIONS
@@ -180,8 +191,20 @@ Returns an object containing the default configuration for the specified chain
 #### serializedConfig
 `string`. An INI-serialized version of `sectionedConfig`.
 
+### updateConfigFile(filePath, delta): returnValue
+Updates or creates a bitcoin configuration file
+
+#### filePath
+`string`. Absolute path of a bitcoin configuration file. Will be created if it does not exist.
+
+#### delta
+`NullableSectionedConfig`. Basically a `SectionedConfig` but where every property's type includes `null`. A `delta` property value `null` means "delete this property".
+
+#### returnValue
+Same as `writeConfigFile` above.
+
 ## More information
-This library has over 80 unit tests with >99% coverage. [The tests](src/__tests__) make assertions not only about its runtime behavior but also about its types using [dtslint](https://github.com/Microsoft/dtslint). If you want to see more examples of how it works, that'd be a good place to start. If you encounter any bugs or have any questions or feature requests, please don't hesitate to file an issue or submit a pull request on this project's repository on GitHub.
+This library has over 80 unit tests with >98% coverage. [The tests](src/__tests__) make assertions not only about its runtime behavior but also about its types using [dtslint](https://github.com/Microsoft/dtslint). If you want to see more examples of how it works, that'd be a good place to start. If you encounter any bugs or have any questions or feature requests, please don't hesitate to file an issue or submit a pull request on this project's repository on GitHub.
 
 ## License
 

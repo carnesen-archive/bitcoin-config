@@ -15,6 +15,5 @@ export function updateConfigFile(filePath: string, delta: NullableSectionedConfi
     }
   }
   const nextConfig = updateSectionedConfig(config, delta);
-  const { changed } = writeConfigFile(filePath, nextConfig);
-  return { changed };
+  return writeConfigFile(filePath, nextConfig);
 }
