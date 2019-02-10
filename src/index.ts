@@ -1,3 +1,4 @@
+export { DEFAULT_CONFIG_FILE_PATH } from './constants';
 export { BITCOIN_CONFIG_OPTIONS } from './bitcoin-config-options';
 export { BitcoinConfig, SectionedConfig } from './types';
 export { readConfigFile } from './read-config-file';
@@ -10,4 +11,3 @@ export { toAbsolute } from './to-absolute';
 export { getChainName } from './get-chain-name';
 export { setChainName } from './set-chain-name';
 export { getDefaultConfig } from './get-default-config';
-export { DEFAULT_CONFIG_FILE_NAME } from './constants';

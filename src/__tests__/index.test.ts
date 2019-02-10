@@ -3,7 +3,7 @@ import {
   writeConfigFile,
   BitcoinConfig,
   SectionedConfig,
-  DEFAULT_CONFIG_FILE_NAME,
+  DEFAULT_CONFIG_FILE_PATH,
   getDefaultConfig,
 } from '..';
 import * as tempy from 'tempy';
@@ -21,9 +21,7 @@ describe('index', () => {
   });
 
   it('exports string literal constant equal to bitcoin.conf', () => {
-    expect(typeof DEFAULT_CONFIG_FILE_NAME).toBe('string');
-    // $ExpectType "bitcoin.conf"
-    DEFAULT_CONFIG_FILE_NAME;
+    expect(typeof DEFAULT_CONFIG_FILE_PATH).toBe('string');
   });
 
   it('exports types `BitcoinConfig` and `SectionedConfig`', () => {

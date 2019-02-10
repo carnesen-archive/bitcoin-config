@@ -2,25 +2,23 @@ import { mergeSection } from './merge-section';
 import { mergeSectionedConfigs } from './merge-sectioned-configs';
 import { readConfigFile } from './read-config-file';
 import { toAbsolute } from './to-absolute';
-import { DEFAULT_CONFIG_FILE_NAME } from './constants';
+import { DEFAULT_CONFIG_FILE_PATH } from './constants';
 
-const DEFAULT_FILE_PATH = toAbsolute(DEFAULT_CONFIG_FILE_NAME);
-
-export function readConfigFiles(filePath?: string) {
-  let config = readConfigFile(filePath || DEFAULT_FILE_PATH);
-  const { includeconf, datadir } = mergeSection(config);
+export function readConfigFiles(filePath = DEFAULT_CONFIG_FILE_PATH) {
+  let sectionedConfig = readConfigFile(filePath);
+  const { includeconf, datadir } = mergeSection(sectionedConfig);
   if (includeconf) {
     for (const item of includeconf) {
       const includedFilePath = toAbsolute(item, datadir);
       const includedConfig = readConfigFile(includedFilePath);
-      config = mergeSectionedConfigs(config, includedConfig);
+      sectionedConfig = mergeSectionedConfigs(sectionedConfig, includedConfig);
     }
   }
-  const mergedConfig = mergeSection(config);
-  if (mergedConfig.includeconf !== includeconf) {
+  const bitcoinConfig = mergeSection(sectionedConfig);
+  if (bitcoinConfig.includeconf !== includeconf) {
     throw new Error(
       "Included conf files are not allowed to have includeconf's themselves",
     );
   }
-  return mergedConfig;
+  return bitcoinConfig;
 }

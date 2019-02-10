@@ -29,11 +29,9 @@ In TypeScript, the returned config object is intelligently typed, e.g. `regtest`
 
 Here's an example of writing a configuration file:
 ```ts
-const { writeConfigFile, toAbsolute } = require('@carnesen/bitcoin-config');
+const { writeConfigFile, DEFAULT_CONFIG_FILE_PATH } = require('@carnesen/bitcoin-config');
 
-const configFilePath = toAbsolute('bitcoin.conf');
-
-const { changed } = writeConfigFile(configFilePath, {
+const { changed } = writeConfigFile(DEFAULT_CONFIG_FILE_PATH, {
   regtest: true,
   rpcconnect: '1.2.3.4',
   sections: {
@@ -44,13 +42,13 @@ const { changed } = writeConfigFile(configFilePath, {
 });
 
 const message = changed
-  ? `Wrote "${configFilePath}"`
-  : `File "${configFilePath}" has not changed`;
+  ? `Wrote "${DEFAULT_CONFIG_FILE_PATH}"`
+  : `File "${DEFAULT_CONFIG_FILE_PATH}" has not changed`;
 
 console.log(message);
 ```
 
-Now the file at `configFilePath` has contents:
+Now the file at `DEFAULT_CONFIG_FILE_PATH` has contents:
 
 ```ini
 # This is a bitcoin configuration file written using @carnesen/bitcoin-config
@@ -67,11 +65,11 @@ rpcconnect=1.2.3.4
 rpcport=33333
 ```
 
-Finally, continuing the previous example, suppose now we want to update the configuration file:
+Suppose now we want to update the configuration file:
 ```js
-const { updateConfigFile } = require('@carnesen/bitcoin-config');
+const { updateConfigFile, DEFAULT_CONFIG_FILE_PATH } = require('@carnesen/bitcoin-config');
 
-updateConfigFile(configFilePath, {
+updateConfigFile(DEFAULT_CONFIG_FILE_PATH, {
   daemon: true,
   rpcconnect: null,
 });
@@ -79,6 +77,9 @@ updateConfigFile(configFilePath, {
 This update means "set the `daemon` property to `true` and unset (delete) the `rpcconnect` property".
 
 ## API
+
+### DEFAULT_CONFIG_FILE_PATH
+`string`. The (platform-dependent) default path of the bitcoin configuration file, e.g. `~/.bitcoin/bitcoin.conf` on Linux.
 
 ### BITCOIN_CONFIG_OPTIONS
 `{[optionName: string]: {longName, typeName, description, defaultValue}}`. An object containing all available bitcoin configuration options. The keys are the option names (e.g. `rpcuser`) and the values are objects containing `typeName` etc. Currently there are [147 items](https://github.com/carnesen/bitcoin-config/blob/master/src/bitcoin-config-options.ts) in `BITCOIN_CONFIG_OPTIONS`. If an option is missing, please file an issue or submit a pull request on this project's repository on GitHub.
@@ -107,9 +108,6 @@ rpcpassword=abcd1234
 rpcpassword=password
 ```
 This means that when the node is running on the "main" chain `rpcpassword` is "abcd1234", but when it's running in "regtest" mode, `rpcpassword` is simply "password". The `sections` property of a `SectionedConfig` represents those chain-specific configuration options. Not all options are allowed in all sections. For example, the chain selection options `regtest` and `testnet` are only allowed at the top of the file above the sections. Other options such as `acceptnonstdtxn` are not allowed in the "main" section. The `config` argument of `writeConfigFile` described below has type `SectionedConfig`.
-
-### DEFAULT_CONFIG_FILE_NAME
-`'bitcoin.conf'`, the default name of the bitcoin configuration file
 
 ### toAbsolute(filePath, datadir?, chainName?): absoluteFilePath
 Converts a datadir-relative file path into an absolute one.

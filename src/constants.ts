@@ -13,4 +13,4 @@ function getDefaultDatadir(p = platform()) {
 }
 
 export const DEFAULT_DATADIR = getDefaultDatadir();
-export const DEFAULT_CONFIG_FILE_NAME = 'bitcoin.conf';
+export const DEFAULT_CONFIG_FILE_PATH = join(DEFAULT_DATADIR, 'bitcoin.conf');
