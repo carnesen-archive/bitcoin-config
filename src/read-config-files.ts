@@ -2,9 +2,8 @@ import { mergeSection } from './merge-section';
 import { mergeSectionedConfigs } from './merge-sectioned-configs';
 import { readConfigFile } from './read-config-file';
 import { toAbsolute } from './to-absolute';
-import { DEFAULT_CONFIG_FILE_PATH } from './constants';
 
-export function readConfigFiles(filePath = DEFAULT_CONFIG_FILE_PATH) {
+export function readConfigFiles(filePath: string) {
   let sectionedConfig = readConfigFile(filePath);
   const { includeconf, datadir } = mergeSection(sectionedConfig);
   if (includeconf) {

@@ -13,9 +13,9 @@ The package includes runtime JavaScript files suitable for Node.js >=8 as well a
 
 Here's an example that reads and parses the default configuration file (e.g. `~/.bitcoin/bitcoin.conf` on Linux):
 ```js
-const { readConfigFiles } = require('@carnesen/bitcoin-config');
+const { readConfigFiles, DEFAULT_CONFIG_FILE_PATH } = require('@carnesen/bitcoin-config');
 
-const config = readConfigFiles();
+const config = readConfigFiles(DEFAULT_CONFIG_FILE_PATH);
 
 console.log(config);
 /*
@@ -109,35 +109,20 @@ rpcpassword=password
 ```
 This means that when the node is running on the "main" chain `rpcpassword` is "abcd1234", but when it's running in "regtest" mode, `rpcpassword` is simply "password". The `sections` property of a `SectionedConfig` represents those chain-specific configuration options. Not all options are allowed in all sections. For example, the chain selection options `regtest` and `testnet` are only allowed at the top of the file above the sections. Other options such as `acceptnonstdtxn` are not allowed in the "main" section. The `config` argument of `writeConfigFile` described below has type `SectionedConfig`.
 
-### toAbsolute(filePath, datadir?, chainName?): absoluteFilePath
-Converts a datadir-relative file path into an absolute one.
-
-#### filePath 
-`string`. An absolute path (e.g. `'/home/carnesen/.bitcoin/bitcoin.conf'`) or a relative one (e.g. `'bitcoin.conf'`.
-
-#### datadir
-`string` (optional). Absolute path of a bitcoin data directory. Default value is platform dependent, e.g. `~/.bitcoin` on Linux.
-
-#### chainName
-`'main' | 'regtest' | 'test'` (optional). If provided, `''`, `'/regtest'`, or `'/testnet3'`, respectively, is appended to the absolute path. Blocks and other data is written to these subdirectories.
-
-#### absoluteFilePath
-`string`. An absolute file path string.
-
-### readConfigFile(filePath?): sectionedConfig
+### readConfigFile(filePath): sectionedConfig
 Reads and parses a bitcoin configuration file from disk
 
 #### filePath
-`string` (optional). Absolute path of a bitcoin configuration file. Default value is platform dependent, e.g. `~/.bitcoin/bitcoin.conf` on Linux.
+`string`. Absolute path of a bitcoin configuration file.
 
 #### sectionedConfig
 `SectionedConfig`. As described [above](#sectionedconfig). The return value represents the full contents of a single bitcoin configuration file.
 
-### readConfigFiles(filePath?): bitcoinConfig
+### readConfigFiles(filePath): bitcoinConfig
 Reads, parses, and merges a bitcoin configuration file together with all its [`includeconf`](https://github.com/bitcoin/bitcoin/pull/10267/files) files.
 
 #### filePath
-`string` (optional). Absolute path of a bitcoin configuration file. Default value is platform dependent, e.g. `~/.bitcoin/bitcoin.conf` on Linux.
+`string`. Absolute path of a bitcoin configuration file.
 
 #### bitcoinConfig
 [`BitcoinConfig`](#bitcoinconfig). Whereas `readConfigFile` returns the full contents of a single file, `readConfigFiles` returns the merged content of (potentially) several files. If the configuration file at `filePath` specifies any `includeconf`s, those are read and merged into the original. What makes the result a `BitcoinConfig` not a `SectionedConfig` is that if there is a configuration section for the currently-active chain, that gets merged into the any-chain values from the top part of the config files above the sections. The logic for casting and merging values is meant to reproduce as closely as possible that of Bitcoin Core. So you're getting as a return value the effective "active" configuration.
@@ -208,6 +193,21 @@ Updates or creates a bitcoin configuration file
 
 #### returnValue
 Same as `writeConfigFile` above.
+
+### toAbsolute(filePath, datadir?, chainName?): absoluteFilePath
+Converts a datadir-relative file path into an absolute one.
+
+#### filePath 
+`string`. An absolute path (e.g. `'/home/carnesen/.bitcoin/bitcoin.conf'`) or a relative one (e.g. `'bitcoin.conf'`.
+
+#### datadir
+`string` (optional). Absolute path of a bitcoin data directory. Default value is platform dependent, e.g. `~/.bitcoin` on Linux.
+
+#### chainName
+`'main' | 'regtest' | 'test'` (optional). If provided, `''`, `'/regtest'`, or `'/testnet3'`, respectively, is appended to the absolute path. Blocks and other data is written to these subdirectories.
+
+#### absoluteFilePath
+`string`. An absolute file path string.
 
 ## More information
 This library has over 80 unit tests with >98% coverage. [The tests](src/__tests__) make assertions not only about its runtime behavior but also about its types using [dtslint](https://github.com/Microsoft/dtslint). If you want to see more examples of how it works, that'd be a good place to start. If you encounter any bugs or have any questions or feature requests, please don't hesitate to file an issue or submit a pull request on this project's repository on GitHub.

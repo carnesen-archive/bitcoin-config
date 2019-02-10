@@ -4,18 +4,6 @@ import { readConfigFiles } from '../read-config-files';
 import { writeFileSync } from 'fs';
 
 describe(readConfigFiles.name, () => {
-  it('reads bitcoin.conf in the default datadir if no arg is provided', () => {
-    try {
-      // This will succeed if you have a readable, parsable bitcoin.conf in your default datadir.
-      // If your default datadir does not exist, it will throw ENOENT, which is expected.
-      readConfigFiles();
-    } catch (ex) {
-      if (ex.code !== 'ENOENT') {
-        throw ex;
-      }
-    }
-  });
-
   it('reads bitcoin.conf at the specified path', () => {
     const filePath = tempWrite.sync('rpcuser=chris', 'bitcoin.conf');
     expect(readConfigFiles(filePath).rpcuser).toEqual('chris');
