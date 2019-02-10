@@ -162,14 +162,22 @@ Serializes a configuration object and writes it to disk
 #### backupFilePath
 `string`. When `writeConfigFile` writes a file to disk, it first move an existing file at that location to `${filePath}.bak`. `backupFilePath` is the absolute path of the backup file.
 
-### getChainName(bitcoinConfig): chainName
-Extracts the name of the currently-active chain from a bitcoin configuration
+### getChainName(config): chainName
+Extracts a "chain name" (`'main' | 'test' | 'regtest'`) from boolean properties `regtest` and `testnet`.
 
-#### bitcoinConfig
-`BitcoinConfig`. A bitcoin configuration object.
+#### config
+```ts
+{
+  regtest?: boolean;
+  testnet?: boolean;
+}
+```
 
 #### chainName
 `'main' | 'test' | 'regtest'`
+
+### setChainName(config, chainName): nextConfig
+Returns a new configuration object with the boolean properties `regtest` and `testnet` set appropriately based on the provided "chain name" (`'main' | 'test' | 'regtest'`).
 
 ### getDefaultConfig(chainName): defaultConfig
 Returns an object containing the default configuration for the specified chain

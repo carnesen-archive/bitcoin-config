@@ -1,7 +1,7 @@
 import { writeFileSync, existsSync, renameSync, readFileSync } from 'fs';
 
 import { SectionedConfig } from './types';
-import { checkIsAbsolute } from './util';
+import { checkIsAbsolute } from './to-absolute';
 import { serializeConfig } from './serialize-config';
 import mkdirp = require('mkdirp');
 import { dirname } from 'path';

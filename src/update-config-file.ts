@@ -1,5 +1,5 @@
 import { SectionedConfig, NullableSectionedConfig } from './types';
-import { checkIsAbsolute } from './util';
+import { checkIsAbsolute } from './to-absolute';
 import { readConfigFile } from './read-config-file';
 import { writeConfigFile } from './write-config-file';
 import { updateSectionedConfig } from './update-sectioned-config';

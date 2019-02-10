@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 
 import { DEFAULT_CONFIG_FILE_NAME } from './constants';
 import { parseConfig } from './parse-config';
-import { toAbsolute, checkIsAbsolute } from './util';
+import { toAbsolute, checkIsAbsolute } from './to-absolute';
 
 const DEFAULT_FILE_PATH = toAbsolute(DEFAULT_CONFIG_FILE_NAME);
 

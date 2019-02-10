@@ -1,5 +1,5 @@
 import { join, basename, dirname } from 'path';
-import { toAbsolute } from '../util';
+import { toAbsolute } from '../to-absolute';
 import { DEFAULT_DATADIR } from '../constants';
 
 describe(toAbsolute.name, () => {

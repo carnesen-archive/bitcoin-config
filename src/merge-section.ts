@@ -1,6 +1,6 @@
 import { SectionedConfig, BitcoinConfig } from './types';
 import { BITCOIN_CONFIG_OPTIONS } from './bitcoin-config-options';
-import { getChainName } from './util';
+import { getChainName } from './get-chain-name';
 import { mergeBitcoinConfigs } from './merge-bitcoin-configs';
 
 export function mergeSection(sectionedConfig: SectionedConfig): BitcoinConfig {
