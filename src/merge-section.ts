@@ -4,9 +4,9 @@ import { getChainName } from './get-chain-name';
 import { mergeBitcoinConfigs } from './merge-bitcoin-configs';
 
 export function mergeSection(sectionedConfig: SectionedConfig): BitcoinConfig {
-  const chaneName = getChainName(sectionedConfig);
+  const chainName = getChainName(sectionedConfig);
   const { sections, ...rest } = sectionedConfig;
-  if (chaneName !== 'main') {
+  if (chainName !== 'main') {
     for (const [optionName, option] of Object.entries(BITCOIN_CONFIG_OPTIONS)) {
       if (option.onlyAppliesToMain) {
         delete rest[optionName as keyof typeof BITCOIN_CONFIG_OPTIONS];
@@ -16,7 +16,7 @@ export function mergeSection(sectionedConfig: SectionedConfig): BitcoinConfig {
   if (!sections) {
     return rest;
   }
-  const sectionConfig = sections[chaneName];
+  const sectionConfig = sections[chainName];
   if (!sectionConfig) {
     return rest;
   }
